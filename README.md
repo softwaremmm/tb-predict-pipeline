@@ -29,6 +29,9 @@ Using a bare SP3 stack:
 [This](https://github.com/seqeralabs/nf-k8s-best-practices) suggests that the `.command.run not found` is an issue with pvc latency. However, according to `kubectl describe <failed pod>`, the command being run has the path to the host's work directory (i.e it is not being copied/linked to the pod's pvc). Logging into the head pod to inspect the pvc also shows nothing being copied.
 
 
+Examples of the stack traces for some issues I have found can be found in the `k8sErrorExamples` directory
+
+
 #### Setting up minikube
 ```
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb

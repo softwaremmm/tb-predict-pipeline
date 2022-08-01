@@ -1,0 +1,30 @@
+N E X T F L O W  ~  version 22.06.1-edge
+Launching `null` [prickly_dalembert] DSL2 - revision: e4dd2e4d1e
+executor >  k8s (1)
+[71/d9ea5b] process > runPrediction [100%] 1 of 1, failed: 1 ✘
+Error executing process > 'runPrediction'
+
+Caused by:
+  Process `runPrediction` terminated for an unknown reason -- Likely it has been terminated by the external system
+
+Command executed:
+
+  echo 'in k8s'
+
+Command exit status:
+  -
+
+Command output:
+  (empty)
+
+Command wrapper:
+  /bin/bash: .command.run: No such file or directory
+
+Work dir:
+  /home/ubuntu/testNextflow/work/71/d9ea5bce6a8508cfe42db45d226668
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+
+
+*** Absolutely no idea how this can be fixed - same error on 2 different installs just attempting to create a k8s run and exit ***
