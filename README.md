@@ -3,8 +3,20 @@ Nextflow pipeline for producing variants, mutations and effects of a specified (
 
 ## Run locally with Docker
 ```
+git clone https://github.com/oxfordmmm/tb-predict-pipeline
+cd tb-predict-pipeline
 nextflow run . -profile docker --sample <absolute sample path> --reference <absolute reference path> --catalogue <absolute catalogue path> --output_dir <absolute output directory path>
 ```
+
+## Run using Nextflow's kuberun
+Kuberun is the only way I've found to get this running with Kubernetes. However, I have only tested this on an SP3 stack with Kubernetes setup so YMMV.
+An SP3 stack has a directory `/data` which corresponds to a persistent volume claim `default-nextflow-fss-storage-data-pvc`. When Nextflow runs `kuberun`, this directory can be mounted (in this case to `/data`) on the pod - giving a working directory of `/data/<user>` (in the SP3 stack case, `/data/ubuntu`).
+If sample VCFs, reference genomes and catalogues are copied/moved/linked to folders within `/data`, they can be referenced as paths within the Nextflow command:
+```
+nextflow kuberun https://github.com/oxfordmmm/tb-predict-pipeline -r k8sTest -v default-nextflow-fss-storage-data-pvc:/data --sample /data/<VCF path> --reference /data/<reference path> --catalogue /data/<catalogue path> --output_dir /data/<output path>
+```
+The result of this is utilising the specified VCF, reference and sample to populate the specified output directory within the `/data` path.
+
 
 ## Run with Kubernetes
 This does not currently work due to unknown issues with Nextflow and Kubernetes...
