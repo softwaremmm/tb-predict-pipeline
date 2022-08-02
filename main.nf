@@ -60,7 +60,6 @@ Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
 
 //Run gnomon
 process runPrediction {
-    publishDir "${params.output_dir}", mode: 'copy'
     input:
         path sample
         path reference
