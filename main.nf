@@ -76,12 +76,7 @@ process runPrediction {
         path "$outputDir/*-fixed.fasta" optional true
         path "$outputDir/*-variable.fasta" optional true
     script:
-        //This is an admittedly hacky way to try to get it to run inside docker
-        //But should only be used for testing
         """
-        apt-get update && apt-get install -y python3-pip git
-        git clone https://github.com/oxfordmmm/gnomon && cd gnomon && pip install .
-        cd ..
         gnomon --genome_object $reference --catalogue $catalogue --vcf_file $sample --output_dir $outputDir --json --fasta $fasta
         """
 }
