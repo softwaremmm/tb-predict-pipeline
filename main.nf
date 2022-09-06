@@ -60,28 +60,35 @@ Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
 
 //Run gnomon
 process runPrediction {
+
+    tag {sample_name}
+    publishDir "${params.output_dir}/${sample_name}", mode: 'copy', pattern: '*', overwrite: 'true'
     input:
         path sample
         path reference
         path catalogue
         path outputDir
         val fasta
+        val sample_name
     output:
-        path "$outputDir/gnomon.log"
-        path "$outputDir/variants.csv"
-        path "$outputDir/gnomon-out.json" //Always create the JSON
-        path "$outputDir/mutations.csv" optional true
-        path "$outputDir/effects.csv" optional true
+        path "${sample_name}.gnomon.log"
+        path "${sample_name}.variants.csv"
+        path "${sample_name}.gnomon-out.json" //Always create the JSON
+        path "${sample_name}.mutations.csv" optional true
+        path "${sample_name}.effects.csv" optional true
         //One of these will always be created. Default is fixed length
-        path "$outputDir/*-fixed.fasta" optional true
-        path "$outputDir/*-variable.fasta" optional true
+        path "*-fixed.fasta" optional true
+        path "*-variable.fasta" optional true
     script:
         """
-        gnomon --genome_object $reference --catalogue $catalogue --vcf_file $sample --output_dir $outputDir --json --fasta $fasta
+        gnomon --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --fasta $fasta --output_dir .
         """
 }
 
 workflow {
     main:
-        runPrediction(params.sample, params.reference, params.catalogue, params.output_dir, params.fasta)
+        //Pull out the sample name from the vcf param
+        sample_name = file(params.sample).simpleName
+
+        runPrediction(params.sample, params.reference, params.catalogue, params.output_dir, params.fasta, sample_name)
 }
