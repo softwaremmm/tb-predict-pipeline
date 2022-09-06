@@ -135,3 +135,9 @@ dmypy.json
 .nextflow.log*
 .nextflow
 work
+
+#Ignore pickles
+*.pkl
+
+#Ignore testing outputs
+tests/outputs/*
