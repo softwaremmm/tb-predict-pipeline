@@ -30,7 +30,7 @@ jobs:
         #Install Nextflow
         curl -s https://get.nextflow.io | bash
         chmod a+x nextflow
-        export PATH=$(pwd):$PATH
+        cp nextflow /usr/local/bin
 
         #Make sure we have python working...
         python3 -m pip install --upgrade pip
