@@ -1,3 +1,4 @@
+[![Tests](https://github.com/oxfordmmm/tb-predict-pipeline/actions/workflows/tests.yaml/badge.svg)](https://github.com/oxfordmmm/tb-predict-pipeline/actions/workflows/tests.yaml)
 # TB-Predict-Pipeline
 Nextflow pipeline for producing variants, mutations and effects of a specified (minos) VCF file
 
