@@ -286,3 +286,37 @@ def test_3():
 
     #This already asserts that the inputs are equal so no need for assert
     recursive_eq(expectedJSON, actualJSON)
+
+def test_4():
+    '''Test to ensure that using docker does not change outputs
+    '''
+    #Docker generated files
+    path = "tests/outputs/1/NC_045512/"
+    vcfStem = "NC_045512"
+
+    #Check for expected values within csvs
+    variants1 = pd.read_csv(path + f"{vcfStem}.variants.csv")
+    mutations1 = pd.read_csv(path + f"{vcfStem}.mutations.csv")
+    effects1 = pd.read_csv(path + f"{vcfStem}.effects.csv")
+
+    JSON1 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    #Remove datetime as this is unreplicable
+    del JSON1['meta']['UTC-datetime-run']
+
+    #Bare metal generated files
+    path = "tests/outputs/4/NC_045512/"
+
+    #Check for expected values within csvs
+    variants2 = pd.read_csv(path + f"{vcfStem}.variants.csv")
+    mutations2 = pd.read_csv(path + f"{vcfStem}.mutations.csv")
+    effects2 = pd.read_csv(path + f"{vcfStem}.effects.csv")
+
+    JSON2 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    #Remove datetime as this is unreplicable
+    del JSON2['meta']['UTC-datetime-run']
+
+    #This already asserts that the inputs are equal so no need for assert
+    recursive_eq(JSON1, JSON2)
+    recursive_eq(variants1, variants2)
+    recursive_eq(mutations1, mutations2)
+    recursive_eq(effects1, effects2)
