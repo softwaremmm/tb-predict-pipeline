@@ -213,3 +213,76 @@ def test_2():
 
     #This already asserts that the inputs are equal so no need for assert
     recursive_eq(expectedJSON, actualJSON)
+
+
+
+def test_3():
+    '''Testing a case which generates variants and mutations but not effects
+    Input:
+            NC_045512.2-double-minos.vcf
+        Expect output:
+            variants:    28280g>t
+            mutations:   N@D3Y
+    '''
+
+    path = "tests/outputs/3/NC_045512/"
+    vcfStem = "NC_045512"
+
+    #Check for expected values within csvs
+    variants = pd.read_csv(path + f"{vcfStem}.variants.csv")
+    mutations = pd.read_csv(path + f"{vcfStem}.mutations.csv")
+    with pytest.raises(Exception):
+        _ = pd.read_csv(path + f"{vcfStem}.effects.csv")
+
+    assert variants['VARIANT'][0] == '28280g>t'
+
+
+    assert 'N' in mutations['GENE'].to_list()
+
+    assert mutations['MUTATION'][mutations['GENE'].to_list().index('N')] == 'D3Y'
+
+    
+
+    expectedJSON = {
+        'meta': {
+            'version': '1.0.0',
+            'guid': vcfStem,
+            'fields': {
+                "MUTATIONS": [
+                    "MUTATION",
+                    "GENE",
+                    "GENE_POSITION"
+                    ],
+                "VARIANTS": [
+                    "VARIANT",
+                    "NUCLEOTIDE_INDEX"
+                    ]
+            }
+        },
+        'data': {
+            'VARIANTS': [
+                {
+                    'VARIANT': '28280g>t',
+                    'NUCLEOTIDE_INDEX': 28280
+                }
+            ],
+            'MUTATIONS': [
+                {
+                    'MUTATION': 'D3Y',
+                    'GENE': 'N',
+                    'GENE_POSITION': 3
+                },
+            ],
+        }
+    }
+
+    #Ensure the same key ordering as actual by running through json dumping and loading
+    strJSON = json.dumps(expectedJSON, indent=2, sort_keys=True)
+    expectedJSON = sortValues(json.loads(strJSON))
+
+    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    #Remove datetime as this is unreplicable
+    del actualJSON['meta']['UTC-datetime-run']
+
+    #This already asserts that the inputs are equal so no need for assert
+    recursive_eq(expectedJSON, actualJSON)
