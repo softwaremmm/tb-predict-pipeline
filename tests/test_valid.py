@@ -41,7 +41,7 @@ def sortValues(json: dict) -> dict:
     return json
 
 def test_1():
-    '''A test case from the `gnomon` unit tests to ensure consistency.
+    '''A test case from the `gnomonicus` unit tests to ensure consistency.
     Input:
             NC_045512.2-double-minos.vcf
         Expect output:
@@ -155,7 +155,7 @@ def test_1():
     strJSON = json.dumps(expectedJSON, indent=2, sort_keys=True)
     expectedJSON = sortValues(json.loads(strJSON))
 
-    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomonicus-out.json'), 'r')))
     #Remove datetime as this is unreplicable
     del actualJSON['meta']['UTC-datetime-run']
 
@@ -207,7 +207,7 @@ def test_2():
     strJSON = json.dumps(expectedJSON, indent=2, sort_keys=True)
     expectedJSON = sortValues(json.loads(strJSON))
 
-    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomonicus-out.json'), 'r')))
     #Remove datetime as this is unreplicable
     del actualJSON['meta']['UTC-datetime-run']
 
@@ -280,7 +280,7 @@ def test_3():
     strJSON = json.dumps(expectedJSON, indent=2, sort_keys=True)
     expectedJSON = sortValues(json.loads(strJSON))
 
-    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    actualJSON = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomonicus-out.json'), 'r')))
     #Remove datetime as this is unreplicable
     del actualJSON['meta']['UTC-datetime-run']
 
@@ -299,7 +299,7 @@ def test_4():
     mutations1 = pd.read_csv(path + f"{vcfStem}.mutations.csv")
     effects1 = pd.read_csv(path + f"{vcfStem}.effects.csv")
 
-    JSON1 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    JSON1 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomonicus-out.json'), 'r')))
     #Remove datetime as this is unreplicable
     del JSON1['meta']['UTC-datetime-run']
 
@@ -311,7 +311,7 @@ def test_4():
     mutations2 = pd.read_csv(path + f"{vcfStem}.mutations.csv")
     effects2 = pd.read_csv(path + f"{vcfStem}.effects.csv")
 
-    JSON2 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomon-out.json'), 'r')))
+    JSON2 = sortValues(json.load(open(os.path.join(path, f'{vcfStem}.gnomonicus-out.json'), 'r')))
     #Remove datetime as this is unreplicable
     del JSON2['meta']['UTC-datetime-run']
 

@@ -30,7 +30,7 @@ Mandatory parameters:
 --sample            Path to the sample minos VCF
 --reference         Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
 --catalogue         Path to the resistance catalogue
---output_dir        Desired output path for all files produced by gnomon
+--output_dir        Desired output path for all files produced by gnomonicus
 --fasta             The kind of fasta file to generate. Defaults to fixed length (indels do not change length).
                     One of `fixed` and `variable`
 """
@@ -58,7 +58,7 @@ Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
 """
 .stripIndent()
 
-//Run gnomon
+//Run gnomonicus
 process runPrediction {
 
     tag {sample_name}
@@ -71,9 +71,9 @@ process runPrediction {
         val fasta
         val sample_name
     output:
-        path "${sample_name}.gnomon.log"
+        path "${sample_name}.gnomonicus.log"
         path "${sample_name}.variants.csv"
-        path "${sample_name}.gnomon-out.json" //Always create the JSON
+        path "${sample_name}.gnomonicus-out.json" //Always create the JSON
         path "${sample_name}.mutations.csv" optional true
         path "${sample_name}.effects.csv" optional true
         //One of these will always be created. Default is fixed length
@@ -81,7 +81,7 @@ process runPrediction {
         path "*-variable.fasta" optional true
     script:
         """
-        gnomon --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --fasta $fasta --output_dir .
+        gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --fasta $fasta --output_dir .
         """
 }
 

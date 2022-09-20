@@ -3,7 +3,7 @@
 #Ensure that output dirs are clear
 rm tests/outputs/*/NC_045512/*
 
-#Run the pipeline with a test case from gnomon unit tests for consistency
+#Run the pipeline with a test case from gnomonicus unit tests for consistency
 nextflow run . -profile docker --sample $(pwd)/tests/test-cases/NC_045512.2-double-minos.vcf --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue.csv  --output_dir $(pwd)/tests/outputs/1
 
 #Run a pipeline which should only produce a variants.csv
@@ -13,10 +13,7 @@ nextflow run . -profile docker --sample $(pwd)/tests/test-cases/NC_045512.2-just
 nextflow run . -profile docker --sample $(pwd)/tests/test-cases/NC_045512.2-no-effects.vcf --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue.csv  --output_dir $(pwd)/tests/outputs/3
 
 #Run a pipeline without docker to ensure that this does not affect outputs
-git clone https://github.com/oxfordmmm/gnomon.git
-cd gnomon
-pip install .
-cd ..
+pip install gnomonicus
 nextflow run . --sample $(pwd)/tests/test-cases/NC_045512.2-double-minos.vcf --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue.csv  --output_dir $(pwd)/tests/outputs/4
 
 #Install requirements and test with python

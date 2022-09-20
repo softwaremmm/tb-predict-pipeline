@@ -3,7 +3,7 @@
 Nextflow pipeline for producing variants, mutations and effects of a specified (minos) VCF file
 
 ## Tests
-As this is a very simple pipeline which just calls `gnomon`, the majority of testing occurs within `gnomon`. However, the included tests cover some edge cases of files being produced, as well as ensuring files are placed in correct places.
+As this is a very simple pipeline which just calls `gnomonicus`, the majority of testing occurs within `gnomonicus`. However, the included tests cover some edge cases of files being produced, as well as ensuring files are placed in correct places.
 ### Run the tests
 Pipelines and evaluation are run using a bash script. This should also be automatically run on each push to the `main` branch through a CI action.
 ```
