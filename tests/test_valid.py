@@ -75,7 +75,7 @@ def test_1():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.0',
+            'version': '1.1.1',
             'guid': vcfStem,
             'fields': {
                 "EFFECTS": {
@@ -184,7 +184,7 @@ def test_2():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.0',
+            'version': '1.1.1',
             'guid': vcfStem,
             'fields': {
                 "VARIANTS": [
@@ -245,7 +245,7 @@ def test_3():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.0',
+            'version': '1.1.1',
             'guid': vcfStem,
             'fields': {
                 "MUTATIONS": [
