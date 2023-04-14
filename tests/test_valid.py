@@ -75,7 +75,7 @@ def test_1():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.1',
+            'version': '1.1.3',
             'guid': vcfStem,
             'fields': {
                 "EFFECTS": {
@@ -184,7 +184,7 @@ def test_2():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.1',
+            'version': '1.1.3',
             'guid': vcfStem,
             'fields': {
                 "VARIANTS": [
@@ -245,7 +245,7 @@ def test_3():
 
     expectedJSON = {
         'meta': {
-            'version': '1.1.1',
+            'version': '1.1.3',
             'guid': vcfStem,
             'fields': {
                 "MUTATIONS": [
@@ -316,6 +316,9 @@ def test_4():
     del JSON2['meta']['UTC-datetime-run']
 
     #This already asserts that the inputs are equal so no need for assert
+    print(json.dumps(JSON1, indent=2, sort_keys=True))
+    print()
+    print(json.dumps(JSON2, indent=2, sort_keys=True))
     recursive_eq(JSON1, JSON2)
     recursive_eq(variants1, variants2)
     recursive_eq(mutations1, mutations2)
