@@ -1,0 +1,18 @@
+name: Test-send-dispatch
+on: [push]
+
+jobs:
+  build:
+    name: Send dispatch
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Send a dispatch
+      run: |
+        sudo apt update && sudo apt install -y curl
+        curl -XPOST \
+        -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" \
+        -H "Accept: application/vnd.github.everest-preview+json" \
+        -H "Content-Type: application/json" \
+        https://api.github.com/repos/GlobalPathogenAnalysisService/gpas-tb-workflow/actions/workflows/test_action.yaml/dispatches \
+        --data '{"ref": "master"}'
