@@ -10,9 +10,10 @@ jobs:
     - name: Send a dispatch
       run: |
         sudo apt update && sudo apt install -y curl
-        curl -XPOST \
-        -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" \
-        -H "Accept: application/vnd.github.everest-preview+json" \
-        -H "Content-Type: application/json" \
-        https://api.github.com/repos/GlobalPathogenAnalysisService/gpas-tb-workflow/actions/workflows/test_action.yaml/dispatches \
-        --data '{"ref": "master"}'
+        curl -L -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{secrets.PAT_TOKEN}}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/GlobalPathogenAnalysisService/gpas-tb-workflow/actions/workflows/test_action.yaml/dispatches \
+          -d '{"ref": "test-action"}'
+          
