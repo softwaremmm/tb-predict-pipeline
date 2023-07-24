@@ -9,8 +9,9 @@ ANSI_RESET = "\033[0m"
 
 //Run gnomonicus
 process runPrediction {
-
-    tag {sample_name}
+    container = "oxfordmmm/gnomonicus:latest"
+    cpus = 2
+    memory = "8GB"
     input:
         path sample
         path reference
