@@ -9,8 +9,9 @@ ANSI_RESET = "\033[0m"
 
 //Run gnomonicus
 process runPrediction {
-
-    tag {sample_name}
+    container = "oxfordmmm/gnomonicus:latest"
+    cpus = 2
+    memory = "8GB"
     input:
         path sample
         path reference
@@ -18,19 +19,19 @@ process runPrediction {
         path minor_populations
         val sample_name
     output:
-        path "gnomonicus-out.json"
+        path "gnomonicus.json"
     script:
         """
         gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations
         
-        #Get the name of the output JSON to move it to `gnomonicus-out.json`
+        #Get the name of the output JSON to move it to `gnomonicus.json`
         vcf_name=\$(basename $sample)
         guid=\${vcf_name%.vcf}
-        mv \$guid.gnomonicus-out.json gnomonicus-out.json
+        mv \$guid.gnomonicus-out.json gnomonicus.json
         """
     stub:
         """
-        touch gnomonicus-out.json
+        touch gnomonicus.json
         """
 }
 
