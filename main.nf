@@ -9,7 +9,7 @@ ANSI_RESET = "\033[0m"
 
 //Run gnomonicus
 process runPrediction {
-    container = "oxfordmmm/gnomonicus:latest"
+    container = "lrbvkel2wjot/oxfordmmm/gnomonicus:latest"
     cpus = 2
     memory = "8GB"
     input:
