@@ -17,7 +17,6 @@ process runPrediction {
         path reference
         path catalogue
         path minor_populations
-        val sample_name
     output:
         path "gnomonicus.json"
     script:
@@ -83,10 +82,7 @@ workflow gnomonicus_workflow {
         """
         .stripIndent()
 
-        //Pull out the sample name from the vcf param
-        sample_name = file(sample).simpleName
-
-        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations, sample_name)
+        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations)
 
     emit:
         gnomonicus_json
