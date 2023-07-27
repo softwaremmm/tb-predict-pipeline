@@ -42,6 +42,14 @@ workflow gnomonicus_workflow {
         minor_populations
 
     main:
+        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations)
+
+    emit:
+        gnomonicus_json
+}
+
+workflow {
+    main:
         //Setup so --help triggers the help message
         if (params.help) {
             log.info """
@@ -69,10 +77,10 @@ workflow gnomonicus_workflow {
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
         ------------------------------------------------------------------------
-        --sample            ${sample}
-        --reference         ${reference}
-        --catalogue         ${catalogue}
-        --minor_populations ${minor_populations}
+        --sample            ${params.sample}
+        --reference         ${params.reference}
+        --catalogue         ${params.catalogue}
+        --minor_populations ${params.minor_populations}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -82,13 +90,5 @@ workflow gnomonicus_workflow {
         """
         .stripIndent()
 
-        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations)
-
-    emit:
-        gnomonicus_json
-}
-
-workflow {
-    main:
         gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations)
 }
