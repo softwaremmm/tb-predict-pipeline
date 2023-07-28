@@ -1,17 +1,19 @@
-name: Test-send-dispatch
+name: Integrate subworkflows
 on:
   release:
     types: [released, prereleased]
 
 jobs:
-  build:
-    name: Send dispatch
+  trigger-action:
+    name: Trigger action
     runs-on: ubuntu-latest
 
     steps:
-    - name: Send a dispatch
+    - name: Send workflow dispatch
       run: |
+        #Ensure curl is installed
         sudo apt update --fix-missing && sudo apt install -y curl
+
         curl -L -X POST \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{secrets.PAT_TOKEN}}" \
