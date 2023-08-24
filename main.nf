@@ -18,7 +18,7 @@ process runPrediction {
         path catalogue
         path minor_populations
     output:
-        path "gnomonicus.json"
+        path "resistance_prediction_report.json"
     script:
         """
         if [ ${workflow.profile} == 'kubernetes' ]
@@ -29,14 +29,14 @@ process runPrediction {
 
         gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes
         
-        #Get the name of the output JSON to move it to `gnomonicus.json`
+        #Get the name of the output JSON to move it to `resistance_prediction_report.json`
         vcf_name=\$(basename $sample)
         guid=\${vcf_name%.vcf}
-        mv \$guid.gnomonicus-out.json gnomonicus.json
+        mv \$guid.gnomonicus-out.json resistance_prediction_report.json
         """
     stub:
         """
-        touch gnomonicus.json
+        touch resistance_prediction_report.json
         """
 }
 
