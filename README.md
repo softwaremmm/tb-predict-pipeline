@@ -5,7 +5,7 @@ Nextflow pipeline for producing variants, mutations and effects of a specified (
 ## Tests
 As this is a very simple pipeline which just calls `gnomonicus`, the majority of testing occurs within `gnomonicus`. However, the included tests cover some edge cases of files being produced, as well as ensuring files are placed in correct places.
 ### Run the tests
-Pipelines and evaluation are run using a bash script. This should also be automatically run on each push to the `main` branch through a CI action.
+Pipelines and evaluation are run using a bash script. This should also be automatically run on each push to the `main` branch through a CI action. Note that this repo intentionally does not use `nf-test` for these tests. This is due to a few reasons, but mostly that direct file comparisons are not reliable here due to fields such as timestamp
 ```
 tests/test.sh
 ```
