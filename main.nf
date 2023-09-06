@@ -11,7 +11,7 @@ ANSI_RESET = "\033[0m"
 process runPrediction {
     container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.1.2"
     cpus = 2
-    memory = "8GB"
+    memory = "6GB"
     input:
         path sample
         path reference
