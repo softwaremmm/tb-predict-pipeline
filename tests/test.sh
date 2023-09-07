@@ -20,6 +20,9 @@ sudo rm -rf work
 pip install gnomonicus
 
 #Do some processing...
+
+#These are made up test cases to hit edge cases
+#Most of these use COVID-19 as it is quick to process, but some use a fake genome
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --sample $(pwd)/tests/test-cases/NC_045512.2-S_E484K-minos.vcf --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue.csv --minor_populations $(pwd)/tests/test-cases/no-minors.txt
 keepOutput 1
 
@@ -49,6 +52,25 @@ keepOutput 9
 
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/TEST-DNA.gbk --sample $(pwd)/tests/test-cases/TEST-DNA-large-del.vcf --catalogue $(pwd)/tests/test-cases/TEST-DNA-catalogue.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
 keepOutput 10
+
+#These are realistic TB cases
+#As they're TB, pre-pickle the genome to save time
+gbkToPkl tests/test-cases/NC_000962.3.gbk --compress
+
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0001.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
+keepOutput 11
+
+#TODO: Fix this. It picks up  761160 being a null call correctly (GT=./.), but the VCF also has evidence of calls (COV=2,98)
+#This means 1 of 3 options has gone wrong: 
+#   a) the test case is wrong. The COV values should be 0 to match the null call
+#   b) the software is wrong. The minor populations shouldn't be fetched for null calls
+#   c) the expected output is wrong. It could be possible that we want this
+# sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0002.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
+# keepOutput 12
+
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0003.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
+keepOutput 13
+
 
 #Install requirements and test with python
 pip install pytest recursive_diff
