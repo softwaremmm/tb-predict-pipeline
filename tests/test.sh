@@ -60,13 +60,8 @@ gbkToPkl tests/test-cases/NC_000962.3.gbk --compress
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0001.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
 keepOutput 11
 
-#TODO: Fix this. It picks up  761160 being a null call correctly (GT=./.), but the VCF also has evidence of calls (COV=2,98)
-#This means 1 of 3 options has gone wrong: 
-#   a) the test case is wrong. The COV values should be 0 to match the null call
-#   b) the software is wrong. The minor populations shouldn't be fetched for null calls
-#   c) the expected output is wrong. It could be possible that we want this
-# sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0002.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
-# keepOutput 12
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0002.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
+keepOutput 12
 
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0003.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt
 keepOutput 13
