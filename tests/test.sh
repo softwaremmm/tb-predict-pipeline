@@ -17,7 +17,22 @@ keepOutput(){
 rm -rf tests/outputs/*
 sudo rm -rf work
 
-pip install gnomonicus
+#Setup virtualenv if required
+if test -d gnomonicus_venv; then
+    echo "Virtualenv already existed."
+else
+    echo "Creating virtualenv..."
+    pip install virtualenv
+    python3 -m virtualenv gnomonicus_venv
+fi
+
+source gnomonicus_venv/bin/activate
+
+gnomonicus_version=$(cat main.nf | grep -E "container\ ?=\ ?" | cut -d ":" -f 2 | tr -d \")
+
+
+#Match the gnomonicus version to the version used in the container
+pip install gnomonicus==$gnomonicus_version
 
 #Do some processing...
 
