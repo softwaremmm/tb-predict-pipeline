@@ -141,3 +141,6 @@ work
 
 #Ignore testing outputs
 tests/outputs/*
+
+#Ignore nextflow reports
+*.html

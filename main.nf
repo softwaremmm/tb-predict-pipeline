@@ -11,7 +11,10 @@ ANSI_RESET = "\033[0m"
 process runPrediction {
     container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.1.3"
     cpus = 2
-    memory = "6GB"
+    maxRetries 5
+    memory = { 
+        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
+    }
     input:
         path sample
         path reference
