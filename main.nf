@@ -36,6 +36,11 @@ process runPrediction {
         vcf_name=\$(basename $sample)
         guid=\${vcf_name%.vcf}
         mv \$guid.gnomonicus-out.json resistance_prediction_report.json
+
+        if [ ${workflow.profile} == 'kubernetes' ]
+        then
+            /bin/bash ${projectDir}/lib/s3fs_teardown.sh
+        fi
         """
     stub:
         """
