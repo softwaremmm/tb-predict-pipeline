@@ -65,7 +65,7 @@ keepOutput 8
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --sample $(pwd)/tests/test-cases/NC_045512.2-minors.vcf --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue-COV.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt --fasta_adjudication $(pwd)/tests/test-cases/NC_045512.fasta --testing true
 keepOutput 9
 
-sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/TEST-DNA.gbk --sample $(pwd)/tests/test-cases/TEST-DNA-large-del.vcf --catalogue $(pwd)/tests/test-cases/TEST-DNA-catalogue.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt --fasta_adjudication $(pwd)/tests/test-cases/NC_045512.fasta --testing true
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/TEST-DNA.gbk --sample $(pwd)/tests/test-cases/TEST-DNA-large-del.vcf --catalogue $(pwd)/tests/test-cases/TEST-DNA-catalogue.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt --fasta_adjudication $(pwd)/tests/test-cases/TEST-DNA.fasta --testing true
 keepOutput 10
 
 #These are realistic TB cases
@@ -80,6 +80,15 @@ keepOutput 12
 
 sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0003.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt --fasta_adjudication $(pwd)/tests/test-cases/NC_000962.3.fasta --testing true
 keepOutput 13
+
+
+#With some fasta adjudication
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_045512.2.gbk --sample $(pwd)/tests/test-cases/NC_045512.2-S_E484K-minos.vcf --catalogue $(pwd)/tests/test-cases/NC_045512.2-test-catalogue.csv --minor_populations $(pwd)/tests/test-cases/no-minors.txt --fasta_adjudication $(pwd)/tests/test-cases/NC_045512.2.all_n.fasta --testing true
+keepOutput 14
+
+sudo nextflow run . -profile docker --reference $(pwd)/tests/test-cases/NC_000962.3.gbk.pkl --sample $(pwd)/tests/test-cases/NC_000962_3_test_0001.vcf --catalogue $(pwd)/tests/test-cases/NC_000962_3_catalogue_1.csv --minor_populations $(pwd)/tests/test-cases/minor_alleles.txt --fasta_adjudication $(pwd)/tests/test-cases/NC_000962.3.all_n.fasta --testing true
+keepOutput 15
+
 
 
 #Install requirements and test with python

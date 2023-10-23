@@ -2529,3 +2529,450 @@ def test_13():
     # assert == does work here, but gives ugly errors if mismatch
     # Recursive_eq reports neat places they differ
     recursive_eq(ordered(expectedJSON), ordered(actualJSON))
+
+
+def test_14():
+    """Input:
+        NC_045512.2-S_E484K-minos.vcf with all N fasta
+    Expect output:
+        variants:    23012g>a
+        mutations:   S@E484K
+        Predicition heierarchy means the phenotype will still be R
+        predictions: {'AAA': 'R', 'BBB': 'S'}
+    """
+    vcfStem = "NC_045512.2-S_E484K-minos"
+
+    expectedJSON = {
+        "meta": {
+            "workflow_version": gnomonicus.__version__,
+            "guid": vcfStem,
+            "status": "success",
+            "workflow_name": "gnomonicus",
+            "workflow_task": "resistance_prediction",
+            "reference": "NC_045512",
+            "catalogue_type": "RFUS",
+            "catalogue_name": "gnomonicus_test",
+            "catalogue_version": "v1.0",
+        },
+        "data": {
+            "variants": [
+                {
+                    "variant": "23012g>a",
+                    "nucleotide_index": 23012,
+                    "gene_name": "S",
+                    "gene_position": 484,
+                    "codon_idx": 0,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 44,
+                        "DPF": 0.991,
+                        "COV": [0, 44],
+                        "FRS": 1.0,
+                        "GT_CONF": 300.34,
+                        "GT_CONF_PERCENTILE": 54.73,
+                        "REF": "g",
+                        "ALTS": ["a"],
+                        "POS": 23012,
+                    },
+                    "vcf_idx": 1,
+                }
+            ],
+            "mutations": [
+                {
+                    "mutation": "E484K",
+                    "gene": "S",
+                    "gene_position": 484,
+                    "ref": "gaa",
+                    "alt": "aaa",
+                }
+            ],
+            "effects": {
+                "AAA": [
+                    {
+                        "gene": "S",
+                        "mutation": "E484K",
+                        "prediction": "R",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "S",
+                        "mutation": "E484X",
+                        "prediction": "F",
+                        "evidence": {"FASTA called": "N"},
+                    },
+                    {"phenotype": "R"},
+                ],
+            },
+            "antibiogram": {"AAA": "R", "BBB": "S"},
+        },
+    }
+    expectedJSON = json.loads(json.dumps(expectedJSON, sort_keys=True))
+
+    actualJSON = prep_json(
+        json.load(open("tests/outputs/14/resistance_prediction_report.json", "r"))
+    )
+
+    # assert == does work here, but gives ugly errors if mismatch
+    # Recursive_eq reports neat places they differ
+    recursive_eq(ordered(expectedJSON), ordered(actualJSON))
+
+
+def test_15():
+    # This should exactly match the outputs of test 11, but with additional `F` calls
+    vcfStem = "NC_000962_3_test_0001"
+
+    expectedJSON = {
+        "meta": {
+            "workflow_version": gnomonicus.__version__,
+            "guid": vcfStem,
+            "status": "success",
+            "workflow_name": "gnomonicus",
+            "workflow_task": "resistance_prediction",
+            "reference": "NC_000962",
+            "catalogue_type": "RFUS",
+            "catalogue_name": "test_001",
+            "catalogue_version": "v1.00",
+        },
+        "data": {
+            "variants": [
+                {
+                    "variant": "7571g>a",
+                    "nucleotide_index": 7571,
+                    "gene_name": "gyrA",
+                    "gene_position": 90,
+                    "codon_idx": 2,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 54.0,
+                        "ALLELE_DP": [0.0, 54.0],
+                        "FRS": 1.0,
+                        "COV_TOTAL": 54,
+                        "COV": [0, 54],
+                        "GT_CONF": 31.81,
+                        "GT_CONF_PERCENTILE": 11.47,
+                        "POS": 7571,
+                        "REF": "g",
+                        "ALTS": ["a"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "7585g>c",
+                    "nucleotide_index": 7585,
+                    "gene_name": "gyrA",
+                    "gene_position": 95,
+                    "codon_idx": 1,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 54.0,
+                        "ALLELE_DP": [0.0, 54.0],
+                        "FRS": 1.0,
+                        "COV_TOTAL": 54,
+                        "COV": [0, 54],
+                        "GT_CONF": 31.81,
+                        "GT_CONF_PERCENTILE": 11.47,
+                        "POS": 7585,
+                        "REF": "g",
+                        "ALTS": ["c"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "760854a>t",
+                    "nucleotide_index": 760854,
+                    "gene_name": "rpoB",
+                    "gene_position": 350,
+                    "codon_idx": 0,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 43.0,
+                        "ALLELE_DP": [0.0, 43.0],
+                        "FRS": 1.0,
+                        "COV_TOTAL": 43,
+                        "COV": [0, 43],
+                        "GT_CONF": 396.18,
+                        "GT_CONF_PERCENTILE": 38.85,
+                        "POS": 760854,
+                        "REF": "a",
+                        "ALTS": ["t"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "761155c>t",
+                    "nucleotide_index": 761155,
+                    "gene_name": "rpoB",
+                    "gene_position": 450,
+                    "codon_idx": 1,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 100.0,
+                        "ALLELE_DP": [2.0, 98.0],
+                        "FRS": 0.98,
+                        "COV_TOTAL": 100,
+                        "COV": [2, 98],
+                        "GT_CONF": 252.06,
+                        "GT_CONF_PERCENTILE": 43.15,
+                        "POS": 761155,
+                        "REF": "c",
+                        "ALTS": ["t"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "1473183a>c",
+                    "nucleotide_index": 1473183,
+                    "gene_name": "rrs",
+                    "gene_position": 1338,
+                    "codon_idx": None,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 100.0,
+                        "ALLELE_DP": [2.0, 98.0],
+                        "FRS": 0.98,
+                        "COV_TOTAL": 100,
+                        "COV": [2, 98],
+                        "GT_CONF": 209.84,
+                        "GT_CONF_PERCENTILE": 77.55,
+                        "POS": 1473183,
+                        "REF": "a",
+                        "ALTS": ["c"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "1473246a>g",
+                    "nucleotide_index": 1473246,
+                    "gene_name": "rrs",
+                    "gene_position": 1401,
+                    "codon_idx": None,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 100.0,
+                        "ALLELE_DP": [2.0, 98.0],
+                        "FRS": 0.98,
+                        "COV_TOTAL": 100,
+                        "COV": [2, 98],
+                        "GT_CONF": 43.89,
+                        "GT_CONF_PERCENTILE": 23.15,
+                        "POS": 1473246,
+                        "REF": "a",
+                        "ALTS": ["g"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "1674048g>t",
+                    "nucleotide_index": 1674048,
+                    "gene_name": "fabG1",
+                    "gene_position": 203,
+                    "codon_idx": 2,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 54.0,
+                        "ALLELE_DP": [4.0, 50.0],
+                        "FRS": 0.926,
+                        "COV_TOTAL": 54,
+                        "COV": [4, 50],
+                        "GT_CONF": 98.34,
+                        "GT_CONF_PERCENTILE": 99.05,
+                        "POS": 1674048,
+                        "REF": "g",
+                        "ALTS": ["t"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "2289010c>a",
+                    "nucleotide_index": 2289010,
+                    "gene_name": "pncA",
+                    "gene_position": 78,
+                    "codon_idx": 0,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 89.0,
+                        "ALLELE_DP": [5.0, 84.0],
+                        "FRS": 0.944,
+                        "COV_TOTAL": 89,
+                        "COV": [5, 84],
+                        "GT_CONF": 204.17,
+                        "GT_CONF_PERCENTILE": 49.86,
+                        "POS": 2289010,
+                        "REF": "c",
+                        "ALTS": ["a"],
+                    },
+                    "vcf_idx": 1,
+                },
+                {
+                    "variant": "2289193c>t",
+                    "nucleotide_index": 2289193,
+                    "gene_name": "pncA",
+                    "gene_position": 17,
+                    "codon_idx": 0,
+                    "vcf_evidence": {
+                        "GT": [1, 1],
+                        "DP": 89.0,
+                        "ALLELE_DP": [5.0, 84.0],
+                        "FRS": 0.944,
+                        "COV_TOTAL": 89,
+                        "COV": [5, 84],
+                        "GT_CONF": 0.57,
+                        "GT_CONF_PERCENTILE": 85.13,
+                        "POS": 2289193,
+                        "REF": "c",
+                        "ALTS": ["t"],
+                    },
+                    "vcf_idx": 1,
+                },
+            ],
+            "mutations": [
+                {"mutation": "a1338c", "gene": "rrs", "gene_position": 1338},
+                {"mutation": "a1401g", "gene": "rrs", "gene_position": 1401},
+                {
+                    "mutation": "T350S",
+                    "gene": "rpoB",
+                    "gene_position": 350,
+                    "ref": "acc",
+                    "alt": "tcc",
+                },
+                {
+                    "mutation": "S450L",
+                    "gene": "rpoB",
+                    "gene_position": 450,
+                    "ref": "tcg",
+                    "alt": "ttg",
+                },
+                {
+                    "mutation": "A90A",
+                    "gene": "gyrA",
+                    "gene_position": 90,
+                    "ref": "gcg",
+                    "alt": "gca",
+                },
+                {"mutation": "g270a", "gene": "gyrA", "gene_position": 270},
+                {
+                    "mutation": "S95T",
+                    "gene": "gyrA",
+                    "gene_position": 95,
+                    "ref": "agc",
+                    "alt": "acc",
+                },
+                {
+                    "mutation": "G17S",
+                    "gene": "pncA",
+                    "gene_position": 17,
+                    "ref": "ggc",
+                    "alt": "agc",
+                },
+                {
+                    "mutation": "G78C",
+                    "gene": "pncA",
+                    "gene_position": 78,
+                    "ref": "ggc",
+                    "alt": "tgc",
+                },
+                {
+                    "mutation": "L203L",
+                    "gene": "fabG1",
+                    "gene_position": 203,
+                    "ref": "ctg",
+                    "alt": "ctt",
+                },
+                {"mutation": "g609t", "gene": "fabG1", "gene_position": 609},
+            ],
+            "effects": {
+                "KAN": [
+                    {
+                        "gene": "rrs",
+                        "mutation": "a1338c",
+                        "prediction": "S",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "rrs",
+                        "mutation": "a1401g",
+                        "prediction": "R",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "rrs",
+                        "mutation": "a1338x",
+                        "prediction": "F",
+                        "evidence": {"FASTA called": "N"},
+                    },
+                    {"phenotype": "R"},
+                ],
+                "RIF": [
+                    {
+                        "gene": "rpoB",
+                        "mutation": "T350S",
+                        "prediction": "U",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "rpoB",
+                        "mutation": "S450L",
+                        "prediction": "R",
+                        "evidence": {},
+                    },
+                    {"phenotype": "R"},
+                ],
+                "MXF": [
+                    {
+                        "gene": "gyrA",
+                        "mutation": "A90A",
+                        "prediction": "S",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "gyrA",
+                        "mutation": "S95T",
+                        "prediction": "S",
+                        "evidence": {},
+                    },
+                    {"phenotype": "S"},
+                ],
+                "PZA": [
+                    {
+                        "gene": "pncA",
+                        "mutation": "G17S",
+                        "prediction": "S",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "pncA",
+                        "mutation": "G78C",
+                        "prediction": "R",
+                        "evidence": {},
+                    },
+                    {"phenotype": "R"},
+                ],
+                "INH": [
+                    {
+                        "gene": "fabG1",
+                        "mutation": "L203L",
+                        "prediction": "R",
+                        "evidence": {},
+                    },
+                    {
+                        "gene": "fabG1",
+                        "mutation": "L203X",
+                        "prediction": "F",
+                        "evidence": {"FASTA called": "N"},
+                    },
+                    {"phenotype": "R"},
+                ],
+            },
+            "antibiogram": {"KAN": "R", "RIF": "R", "MXF": "S", "PZA": "R", "INH": "R"},
+        },
+    }
+
+    expectedJSON = json.loads(json.dumps(expectedJSON, sort_keys=True))
+
+    actualJSON = prep_json(
+        json.load(open("tests/outputs/15/resistance_prediction_report.json", "r"))
+    )
+
+    # assert == does work here, but gives ugly errors if mismatch
+    # Recursive_eq reports neat places they differ
+    recursive_eq(ordered(expectedJSON), ordered(actualJSON))
