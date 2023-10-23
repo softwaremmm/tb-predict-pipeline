@@ -77,11 +77,11 @@ workflow {
                 
             Mandatory parameters:
             ------------------------------------------------------------------------
-            --sample            Path to the sample minos VCF
-            --reference         Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
-            --catalogue         Path to the resistance catalogue
-            --minor_populations Path to a line separated file of genome indices to check for minor populations
-            --fasta_in          Path to the FASTA file produced by clockwork
+            --sample                Path to the sample minos VCF
+            --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
+            --catalogue             Path to the resistance catalogue
+            --minor_populations     Path to a line separated file of genome indices to check for minor populations
+            --fasta_adjudication    Path to the FASTA file produced by clockwork
             """
             .stripIndent()
             exit(0)
@@ -94,11 +94,11 @@ workflow {
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
         ------------------------------------------------------------------------
-        --sample            ${params.sample}
-        --reference         ${params.reference}
-        --catalogue         ${params.catalogue}
-        --minor_populations ${params.minor_populations}
-        --fasta_in          ${params.fasta_in}
+        --sample                ${params.sample}
+        --reference             ${params.reference}
+        --catalogue             ${params.catalogue}
+        --minor_populations     ${params.minor_populations}
+        --fasta_adjudication    ${params.fasta_adjudication}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -108,5 +108,5 @@ workflow {
         """
         .stripIndent()
 
-        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.fasta_in)
+        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.fasta_adjudication)
 }
