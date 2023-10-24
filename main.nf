@@ -9,7 +9,7 @@ ANSI_RESET = "\033[0m"
 
 //Run gnomonicus
 process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.2.0"
+    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.3.0"
     cpus = 2
     maxRetries 5
     memory = { 
@@ -20,6 +20,7 @@ process runPrediction {
         path reference
         path catalogue
         path minor_populations
+        path fasta
     output:
         path "resistance_prediction_report.json"
     script:
@@ -30,7 +31,7 @@ process runPrediction {
             /bin/bash ${projectDir}/lib/s3fs_setup.sh $WORKSPACE
         fi
 
-        gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes
+        gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --fasta_adjudication $fasta
         
         #Get the name of the output JSON to move it to `resistance_prediction_report.json`
         vcf_name=\$(basename $sample)
@@ -54,9 +55,10 @@ workflow gnomonicus_workflow {
         reference
         catalogue
         minor_populations
+        fasta
 
     main:
-        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations)
+        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations, fasta)
 
     emit:
         gnomonicus_json
@@ -75,10 +77,11 @@ workflow {
                 
             Mandatory parameters:
             ------------------------------------------------------------------------
-            --sample            Path to the sample minos VCF
-            --reference         Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
-            --catalogue         Path to the resistance catalogue
-            --minor_populations Path to a line separated file of genome indices to check for minor populations
+            --sample                Path to the sample minos VCF
+            --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
+            --catalogue             Path to the resistance catalogue
+            --minor_populations     Path to a line separated file of genome indices to check for minor populations
+            --fasta_adjudication    Path to the FASTA file produced by clockwork
             """
             .stripIndent()
             exit(0)
@@ -91,10 +94,11 @@ workflow {
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
         ------------------------------------------------------------------------
-        --sample            ${params.sample}
-        --reference         ${params.reference}
-        --catalogue         ${params.catalogue}
-        --minor_populations ${params.minor_populations}
+        --sample                ${params.sample}
+        --reference             ${params.reference}
+        --catalogue             ${params.catalogue}
+        --minor_populations     ${params.minor_populations}
+        --fasta_adjudication    ${params.fasta_adjudication}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -104,5 +108,5 @@ workflow {
         """
         .stripIndent()
 
-        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations)
+        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.fasta_adjudication)
 }
