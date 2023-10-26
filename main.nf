@@ -15,6 +15,12 @@ process runPrediction {
     memory = { 
         params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
     }
+
+    debug true
+    pod label: "name", value: "tb-predict-pipeline:runPrediction"
+    pod label: "sample_id", value: "${params.sample_id}"
+    pod label: "run_id", value: "${params.run_id}"
+
     input:
         path sample
         path reference
