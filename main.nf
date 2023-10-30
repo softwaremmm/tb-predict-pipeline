@@ -13,7 +13,7 @@ process runPrediction {
     cpus = 2
     maxRetries 5
     memory = { 
-        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
+        params.testing=="" ? 10.GB * (0.8 + (task.attempt/5)) : "6GB"
     }
 
     debug true
