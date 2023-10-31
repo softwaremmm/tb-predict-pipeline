@@ -2584,6 +2584,13 @@ def test_14():
                     "gene_position": 484,
                     "ref": "gaa",
                     "alt": "aaa",
+                },
+                {
+                    "mutation": "E484X",
+                    "gene": "S",
+                    "gene_position": 484,
+                    "ref": "gaa",
+                    "alt": "xxx",
                 }
             ],
             "effects": {
@@ -2879,6 +2886,18 @@ def test_15():
                     "alt": "ctt",
                 },
                 {"mutation": "g609t", "gene": "fabG1", "gene_position": 609},
+                {
+                    "gene": "fabG1",
+                    "mutation": "L203X",
+                    "gene_position": 203,
+                    "ref": "ctg",
+                    "alt": "xxx",
+                },
+                {
+                    "gene": "rrs",
+                    "mutation": "a1338x",
+                    "gene_position": 1338,
+                }
             ],
             "effects": {
                 "KAN": [
