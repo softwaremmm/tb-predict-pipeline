@@ -32,6 +32,10 @@ jobs:
         chmod a+x nextflow
         cp nextflow /usr/local/bin
 
+        #Docker login so we can pull. Both with and without sudo for `[sudo] nextflow run`
+        docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
+        sudo docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
+
         #Make sure we have python working...
         python3 -m pip install --upgrade pip
 

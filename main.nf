@@ -35,6 +35,7 @@ process runPrediction {
         then
             echo "Running with kubernetes"
             /bin/bash ${projectDir}/lib/s3fs_setup.sh $WORKSPACE
+            trap 'PROCESS_EXIT=\$?; /bin/bash ${projectDir}/lib/s3fs_teardown.sh; exit \$PROCESS_EXIT;' EXIT
         fi
 
         gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --fasta_adjudication $fasta
@@ -44,10 +45,6 @@ process runPrediction {
         guid=\${vcf_name%.vcf}
         mv \$guid.gnomonicus-out.json resistance_prediction_report.json
 
-        if [ ${workflow.profile} == 'kubernetes' ]
-        then
-            /bin/bash ${projectDir}/lib/s3fs_teardown.sh
-        fi
         """
     stub:
         """
