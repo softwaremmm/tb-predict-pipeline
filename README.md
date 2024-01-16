@@ -10,6 +10,22 @@ Pipelines and evaluation are run using a bash script. This should also be automa
 tests/test.sh
 ```
 
+## Conventional Commits
+Use conventional commits when developing for this repo. 
+You should install the pre-commit hooks to check your commit messages.
+You can also install `commitizen` to help with writing conventional commits.
+You can install both through pip/conda. Or see [wiki for other options](https://github.com/GlobalPathogenAnalysisService/Wiki/blob/main/Commitizen.md#installing-commitizenpre-commit)
+
+To install hooks run
+```bash
+pre-commit install --hook-type commit-msg
+```
+
+To make commit with commitizen run
+```bash
+cz c
+```
+
 ## Run locally with Docker
 ```
 git clone https://github.com/oxfordmmm/tb-predict-pipeline
