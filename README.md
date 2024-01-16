@@ -12,24 +12,19 @@ tests/test.sh
 
 ## Conventional Commits
 Use conventional commits when developing for this repo. 
-You should install the pre-commits to check your commit messages.
+You should install the pre-commit hooks to check your commit messages.
+You can also install `commitizen` to help with writing conventional commits.
+You can install both through pip/conda. Or see [wiki for other options](https://github.com/GlobalPathogenAnalysisService/Wiki/blob/main/Commitizen.md#installing-commitizenpre-commit)
 
-You can install `pre-commit` using pip or conda and run
+To install hooks run
 ```bash
 pre-commit install --hook-type commit-msg
 ```
 
-If you have `npm` installed then you may be able to use `npx`, which is bundled with it, to avoid installing:
+To make commit with commitizen run
 ```bash
-npx pre-commit install --hook-type commit-msg
-``` 
-
-Commitizen can help you write commits. 
-Install commitizen and run `cz c` or use `npx`:
-```bash
-npx cz c
+cz c
 ```
-
 
 ## Run locally with Docker
 ```
