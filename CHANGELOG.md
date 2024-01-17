@@ -1,3 +1,16 @@
+## 1.1.0 (2024-01-17)
+
+### Feat
+
+- use commitizen to manage versions and release
+
+### Fix
+
+- adds pre-commit hook for conventional commits
+- remove integrate subworkflows action
+- **test**: add docker login
+- **s3fs**: ensure buckets are unmounted on exit
+
 ## v1.0.4 (2023-11-09)
 
 ## v1.0.3 (2023-11-03)
