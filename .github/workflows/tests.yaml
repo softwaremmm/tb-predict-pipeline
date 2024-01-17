@@ -5,40 +5,49 @@ jobs:
   build:
     name: Run Tests
     runs-on: ubuntu-latest
-
     steps:
+      - uses: actions/checkout@v4
+        with:
+          token: "${{ secrets.PAT_TOKEN }}"
+          fetch-depth: 0
 
-    - uses: actions/checkout@v2
+      - name: Setup timezone
+        uses: zcong1993/setup-timezone@master
+        with:
+          timezone: UTC
 
-    - name: Setup timezone
-      uses: zcong1993/setup-timezone@master
-      with:
-        timezone: UTC
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      
+      - name: Install Commitizen
+        run: |
+          python3 -m pip install commitizen>=3.7.0
+      - name: Validate commits
+        if: github.ref != 'refs/heads/main'
+        run: |
+          cz check --rev-range origin/main..
+      
+      - name: Install Nextflow
+        run: |
+          #Install JDK
+          curl -s https://get.sdkman.io | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install java
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-    
-    - name: Install Nextflow
-      run: |
-        #Install JDK
-        curl -s https://get.sdkman.io | bash
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-        sdk install java
+          #Install Nextflow
+          curl -s https://get.nextflow.io | bash
+          chmod a+x nextflow
+          cp nextflow /usr/local/bin
 
-        #Install Nextflow
-        curl -s https://get.nextflow.io | bash
-        chmod a+x nextflow
-        cp nextflow /usr/local/bin
+          #Docker login so we can pull. Both with and without sudo for `[sudo] nextflow run`
+          docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
+          sudo docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
 
-        #Docker login so we can pull. Both with and without sudo for `[sudo] nextflow run`
-        docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
-        sudo docker login lhr.ocir.io -u ${{secrets.OCR_USERNAME}} -p $(echo "${{secrets.OCR_TOKEN}}")
+          #Make sure we have python working...
+          python3 -m pip install --upgrade pip
 
-        #Make sure we have python working...
-        python3 -m pip install --upgrade pip
-
-    - name: Test
-      run: |
-        tests/test.sh
+      - name: Test
+        run: |
+          tests/test.sh
