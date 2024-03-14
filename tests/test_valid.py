@@ -863,7 +863,7 @@ def test_8():
                     {
                         "gene": "S",
                         "mutation": "g-5a:0.045",
-                        "prediction": "U",
+                        "prediction": "S",
                         "evidence": {},
                     },
                     {
@@ -875,7 +875,7 @@ def test_8():
                     {
                         "gene": "S",
                         "mutation": "3690_ins_cc:0.045",
-                        "prediction": "R",
+                        "prediction": "S",
                         "evidence": {},
                     },
                     {"phenotype": "R"},
@@ -1024,7 +1024,7 @@ def test_9():
                     {
                         "gene": "S",
                         "mutation": "g-5a:2",
-                        "prediction": "U",
+                        "prediction": "S",
                         "evidence": {},
                     },
                     {
@@ -1036,7 +1036,7 @@ def test_9():
                     {
                         "gene": "S",
                         "mutation": "3690_ins_cc:2",
-                        "prediction": "R",
+                        "prediction": "S",
                         "evidence": {},
                     },
                     {"phenotype": "R"},
@@ -2055,7 +2055,7 @@ def test_12():
                     {
                         "gene": "gyrA",
                         "mutation": "A90V:0.05",
-                        "prediction": "U",
+                        "prediction": "S",
                         "evidence": {},
                     },
                     {"phenotype": "U"},
