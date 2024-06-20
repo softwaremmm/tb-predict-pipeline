@@ -147,3 +147,5 @@ tests/outputs/*
 
 # Ignore gvcf files
 *.gvcf
+# But not the empty one
+!empty.gvcf
