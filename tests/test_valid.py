@@ -201,81 +201,6 @@ def test_1():
     # Recursive_eq reports neat places they differ
     recursive_eq(ordered(expectedJSON), ordered(actualJSON))
 
-
-def test_2():
-    """Input:
-        NC_045512.2-S_E484K-samtools.vcf
-    Expect output:
-        variants:    23012g>a
-        mutations:   S@E484K
-        predictions: {'AAA': 'R', 'BBB': 'S'}
-    """
-    vcfStem = "NC_045512.2-S_E484K-samtools"
-    expectedJSON = {
-        "meta": {
-            "workflow_version": gnomonicus.__version__,
-            "guid": vcfStem,
-            "status": "success",
-            "workflow_name": "gnomonicus",
-            "workflow_task": "resistance_prediction",
-            "reference": "NC_045512",
-            "catalogue_type": "RFUS",
-            "catalogue_name": "gnomonicus_test",
-            "catalogue_version": "v1.0",
-        },
-        "data": {
-            "variants": [
-                {
-                    "variant": "23012g>a",
-                    "nucleotide_index": 23012,
-                    "gene_name": "S",
-                    "gene_position": 484,
-                    "codon_idx": 0,
-                    "vcf_evidence": {
-                        "GT": [1, 1],
-                        "PL": [255, 33, 0],
-                        "POS": 23012,
-                        "REF": "g",
-                        "ALTS": ["a"],
-                    },
-                    "vcf_idx": 1,
-                }
-            ],
-            "mutations": [
-                {
-                    "mutation": "E484K",
-                    "gene": "S",
-                    "gene_position": 484,
-                    "ref": "gaa",
-                    "alt": "aaa",
-                }
-            ],
-            "effects": {
-                "AAA": [
-                    {
-                        "gene": "S",
-                        "mutation": "E484K",
-                        "prediction": "R",
-                        "evidence": {},
-                    },
-                    {"phenotype": "R"},
-                ],
-            },
-            "antibiogram": {"AAA": "R", "BBB": "S"},
-        },
-    }
-
-    expectedJSON = json.loads(json.dumps(expectedJSON, sort_keys=True))
-
-    actualJSON = prep_json(
-        json.load(open("tests/outputs/2/resistance_prediction_report.json", "r"))
-    )
-
-    # assert == does work here, but gives ugly errors if mismatch
-    # Recursive_eq reports neat places they differ
-    recursive_eq(ordered(expectedJSON), ordered(actualJSON))
-
-
 def test_3():
     """Input:
         NC_045512.2-S_F2F-minos.vcf
@@ -1090,8 +1015,8 @@ def test_10():
                     "codon_idx": None,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 2,
-                        "COV": [1, 1],
+                        "DP": 3,
+                        "COV": [1, 2],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
@@ -1107,8 +1032,8 @@ def test_10():
                     "codon_idx": 0,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 2,
-                        "COV": [1, 1],
+                        "DP": 3,
+                        "COV": [1, 2],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
@@ -1124,8 +1049,8 @@ def test_10():
                     "codon_idx": 2,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 2,
-                        "COV": [1, 1],
+                        "DP": 3,
+                        "COV": [1, 2],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
@@ -2535,10 +2460,9 @@ def test_14():
     """Input:
         NC_045512.2-S_E484K-minos.vcf with all N fasta
     Expect output:
-        variants:    23012g>a
-        mutations:   S@E484K
-        Predicition heierarchy means the phenotype will still be R
-        predictions: {'AAA': 'R', 'BBB': 'S'}
+        variants:    23012g>x
+        mutations:   S@E484X
+        predictions: {'AAA': 'F', 'BBB': 'S'}
     """
     vcfStem = "NC_045512.2-S_E484K-minos"
 
@@ -2575,42 +2499,69 @@ def test_14():
                         "POS": 23012,
                     },
                     "vcf_idx": 1,
+                },
+                {
+                    "variant": "23013a>x",
+                    "nucleotide_index": 23013,
+                    "gene_name": "S",
+                    "gene_position": 484,
+                    "codon_idx": 1,
+                    "vcf_evidence": {
+                    "GT": [
+                        None,
+                        None
+                    ],
+                    "COV": [
+                        0
+                    ],
+                    "POS": 23013,
+                    "REF": "c",
+                    "ALTS": None
+                    },
+                    "vcf_idx": None
+                },
+                {
+                    "variant": "23014a>x",
+                    "nucleotide_index": 23014,
+                    "gene_name": "S",
+                    "gene_position": 484,
+                    "codon_idx": 2,
+                    "vcf_evidence": {
+                    "GT": [
+                        None,
+                        None
+                    ],
+                    "COV": [
+                        0
+                    ],
+                    "POS": 23014,
+                    "REF": "c",
+                    "ALTS": None
+                    },
+                    "vcf_idx": None
                 }
             ],
             "mutations": [
-                {
-                    "mutation": "E484K",
-                    "gene": "S",
-                    "gene_position": 484,
-                    "ref": "gaa",
-                    "alt": "aaa",
-                },
                 {
                     "mutation": "E484X",
                     "gene": "S",
                     "gene_position": 484,
                     "ref": "gaa",
-                    "alt": "xxx",
-                }
+                    "alt": "axx",
+                },
             ],
             "effects": {
                 "AAA": [
                     {
                         "gene": "S",
-                        "mutation": "E484K",
-                        "prediction": "R",
-                        "evidence": {},
-                    },
-                    {
-                        "gene": "S",
                         "mutation": "E484X",
                         "prediction": "F",
-                        "evidence": {"FASTA called": "N"},
+                        "evidence": {},
                     },
-                    {"phenotype": "R"},
+                    {"phenotype": "F"},
                 ],
             },
-            "antibiogram": {"AAA": "R", "BBB": "S"},
+            "antibiogram": {"AAA": "F", "BBB": "S"},
         },
     }
     expectedJSON = json.loads(json.dumps(expectedJSON, sort_keys=True))
@@ -2769,6 +2720,46 @@ def test_15():
                     "vcf_idx": 1,
                 },
                 {
+                    "variant": "1674046c>x",
+                    "nucleotide_index": 1674046,
+                    "gene_name": "fabG1",
+                    "gene_position": 203,
+                    "codon_idx": 0,
+                    "vcf_evidence": {
+                    "GT": [
+                        None,
+                        None
+                    ],
+                    "COV": [
+                        0
+                    ],
+                    "POS": 1674046,
+                    "REF": "c",
+                    "ALTS": None
+                    },
+                    "vcf_idx": None
+                },
+                {
+                    "variant": "1674047t>x",
+                    "nucleotide_index": 1674047,
+                    "gene_name": "fabG1",
+                    "gene_position": 203,
+                    "codon_idx": 1,
+                    "vcf_evidence": {
+                    "GT": [
+                        None,
+                        None
+                    ],
+                    "COV": [
+                        0
+                    ],
+                    "POS": 1674047,
+                    "REF": "c",
+                    "ALTS": None
+                    },
+                    "vcf_idx": None
+                },
+                {
                     "variant": "1674048g>t",
                     "nucleotide_index": 1674048,
                     "gene_name": "fabG1",
@@ -2879,25 +2870,12 @@ def test_15():
                     "alt": "tgc",
                 },
                 {
-                    "mutation": "L203L",
-                    "gene": "fabG1",
-                    "gene_position": 203,
-                    "ref": "ctg",
-                    "alt": "ctt",
-                },
-                {"mutation": "g609t", "gene": "fabG1", "gene_position": 609},
-                {
                     "gene": "fabG1",
                     "mutation": "L203X",
                     "gene_position": 203,
                     "ref": "ctg",
-                    "alt": "xxx",
+                    "alt": "xxt",
                 },
-                {
-                    "gene": "rrs",
-                    "mutation": "a1338x",
-                    "gene_position": 1338,
-                }
             ],
             "effects": {
                 "KAN": [
@@ -2912,12 +2890,6 @@ def test_15():
                         "mutation": "a1401g",
                         "prediction": "R",
                         "evidence": {},
-                    },
-                    {
-                        "gene": "rrs",
-                        "mutation": "a1338x",
-                        "prediction": "F",
-                        "evidence": {"FASTA called": "N"},
                     },
                     {"phenotype": "R"},
                 ],
@@ -2969,20 +2941,14 @@ def test_15():
                 "INH": [
                     {
                         "gene": "fabG1",
-                        "mutation": "L203L",
-                        "prediction": "R",
-                        "evidence": {},
-                    },
-                    {
-                        "gene": "fabG1",
                         "mutation": "L203X",
                         "prediction": "F",
-                        "evidence": {"FASTA called": "N"},
+                        "evidence": {},
                     },
-                    {"phenotype": "R"},
+                    {"phenotype": "F"},
                 ],
             },
-            "antibiogram": {"KAN": "R", "RIF": "R", "MXF": "S", "PZA": "R", "INH": "R"},
+            "antibiogram": {"KAN": "R", "RIF": "R", "MXF": "S", "PZA": "R", "INH": "F"},
         },
     }
 

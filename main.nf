@@ -7,9 +7,11 @@ nextflow.enable.dsl=2
 ANSI_GREEN = "\033[1;32m"
 ANSI_RESET = "\033[0m"
 
+params.seq_platform = "illumina"
+
 //Run gnomonicus
 process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.5.7"
+    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.6.3"
     cpus = 2
     maxRetries 5
     memory = { 
@@ -26,23 +28,31 @@ process runPrediction {
         path reference
         path catalogue
         path minor_populations
-        path fasta
+        path gvcf
+        path null_positions
     output:
         path "resistance_prediction_report.json"
     script:
         """
-        if [ ${workflow.profile} == 'kubernetes' ]
-        then
-            echo "Running with kubernetes"
-            /bin/bash ${projectDir}/lib/s3fs_setup.sh $WORKSPACE
-            trap 'PROCESS_EXIT=\$?; /bin/bash ${projectDir}/lib/s3fs_teardown.sh; exit \$PROCESS_EXIT;' EXIT
-        fi
-
-        gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --fasta_adjudication $fasta
-        
-        #Get the name of the output JSON to move it to `resistance_prediction_report.json`
         vcf_name=\$(basename $sample)
         guid=\${vcf_name%.vcf}
+
+        if [ ${params.seq_platform} == 'illumina' ]
+        then
+            mkdir original
+            mv $sample original/\$vcf_name.vcf
+            merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
+
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --min_dp 2
+        fi
+
+        if [ ${params.seq_platform} == 'ont' ]
+        then
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --min_dp 5
+        fi
+
+
+        #Get the name of the output JSON to move it to `resistance_prediction_report.json`
         mv \$guid.gnomonicus-out.json resistance_prediction_report.json
 
         """
@@ -58,10 +68,11 @@ workflow gnomonicus_workflow {
         reference
         catalogue
         minor_populations
-        fasta
+        gvcf
+        null_positions
 
     main:
-        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations, fasta)
+        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations, gvcf, null_positions)
 
     emit:
         gnomonicus_json
@@ -84,7 +95,9 @@ workflow {
             --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
             --catalogue             Path to the resistance catalogue
             --minor_populations     Path to a line separated file of genome indices to check for minor populations
-            --fasta_adjudication    Path to the FASTA file produced by clockwork
+            --gvcf                  Path to the non-compressed gvcf file
+            --null_positions        Path to the null positions file
+            --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """
             .stripIndent()
             exit(0)
@@ -101,7 +114,9 @@ workflow {
         --reference             ${params.reference}
         --catalogue             ${params.catalogue}
         --minor_populations     ${params.minor_populations}
-        --fasta_adjudication    ${params.fasta_adjudication}
+        --gvcf                  ${params.gvcf}
+        --null_positions        ${params.null_positions}
+        --seq_platform          ${params.seq_platform}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -111,5 +126,5 @@ workflow {
         """
         .stripIndent()
 
-        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.fasta_adjudication)
+        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.gvcf, params.null_positions)
 }

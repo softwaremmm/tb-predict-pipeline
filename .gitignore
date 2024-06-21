@@ -144,3 +144,8 @@ tests/outputs/*
 
 #Ignore nextflow reports
 *.html
+
+# Ignore gvcf files
+*.gvcf
+# But not the empty one
+!empty.gvcf
