@@ -1,3 +1,13 @@
+## 1.2.0 (2024-06-21)
+
+### Feat
+
+- add support gvcf mediated null calls
+
+### Fix
+
+- track empty gvcf for tests
+
 ## 1.1.8 (2024-06-10)
 
 ### Fix
