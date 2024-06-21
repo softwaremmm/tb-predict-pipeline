@@ -97,6 +97,7 @@ workflow {
             --minor_populations     Path to a line separated file of genome indices to check for minor populations
             --gvcf                  Path to the non-compressed gvcf file
             --null_positions        Path to the null positions file
+            --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """
             .stripIndent()
             exit(0)
@@ -115,6 +116,7 @@ workflow {
         --minor_populations     ${params.minor_populations}
         --gvcf                  ${params.gvcf}
         --null_positions        ${params.null_positions}
+        --seq_platform          ${params.seq_platform}
 
         Runtime data:
         ------------------------------------------------------------------------
