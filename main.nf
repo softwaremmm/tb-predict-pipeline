@@ -48,6 +48,10 @@ process runPrediction {
 
         if [ ${params.seq_platform} == 'ont' ]
         then
+            mkdir original
+            mv $sample original/\$vcf_name.vcf
+            merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
+
             gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --min_dp 5
         fi
 
