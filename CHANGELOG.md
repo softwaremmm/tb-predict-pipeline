@@ -1,3 +1,10 @@
+## 1.2.3 (2024-07-03)
+
+### Fix
+
+- use min_dp of 5 for ont
+- pass gvcf for ont
+
 ## 1.2.2 (2024-06-28)
 
 ### Fix
