@@ -11,7 +11,7 @@ params.seq_platform = "illumina"
 
 //Run gnomonicus
 process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.6.6"
+    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.6.7"
     cpus = 2
     maxRetries 5
     memory = { 
