@@ -1,3 +1,9 @@
+## 1.2.6 (2024-07-09)
+
+### Fix
+
+- refactor input channels for running batches locally
+
 ## 1.2.5 (2024-07-08)
 
 ### Fix
