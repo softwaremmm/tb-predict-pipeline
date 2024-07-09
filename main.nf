@@ -24,14 +24,15 @@ process runPrediction {
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-        path sample
+        tuple val(sample_id), path(sample), path(gvcf)
         path reference
         path catalogue
         path minor_populations
-        path gvcf
         path null_positions
+
     output:
-        path "resistance_prediction_report.json"
+        tuple val(sample_id), path("resistance_prediction_report.json")
+
     script:
         """
         vcf_name=\$(basename $sample)
@@ -68,15 +69,14 @@ process runPrediction {
 
 workflow gnomonicus_workflow {
     take:
-        sample
+        samples // Channel of tuples with sample_id, vcf, gvcf
         reference
         catalogue
         minor_populations
-        gvcf
         null_positions
 
     main:
-        gnomonicus_json = runPrediction(sample, reference, catalogue, minor_populations, gvcf, null_positions)
+        gnomonicus_json = runPrediction(samples, reference, catalogue, minor_populations, null_positions)
 
     emit:
         gnomonicus_json
@@ -96,10 +96,10 @@ workflow {
             Mandatory parameters:
             ------------------------------------------------------------------------
             --sample                Path to the sample minos VCF
+            --gvcf                  Path to the non-compressed gvcf file
             --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
             --catalogue             Path to the resistance catalogue
             --minor_populations     Path to a line separated file of genome indices to check for minor populations
-            --gvcf                  Path to the non-compressed gvcf file
             --null_positions        Path to the null positions file
             --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """
@@ -115,10 +115,10 @@ workflow {
         Parameters used:
         ------------------------------------------------------------------------
         --sample                ${params.sample}
+        --gvcf                  ${params.gvcf}
         --reference             ${params.reference}
         --catalogue             ${params.catalogue}
         --minor_populations     ${params.minor_populations}
-        --gvcf                  ${params.gvcf}
         --null_positions        ${params.null_positions}
         --seq_platform          ${params.seq_platform}
 
@@ -130,5 +130,72 @@ workflow {
         """
         .stripIndent()
 
-        gnomonicus_workflow(params.sample, params.reference, params.catalogue, params.minor_populations, params.gvcf, params.null_positions)
+        sample = Channel.fromPath("${params.sample}", checkIfExists: true)
+            .map { it -> tuple(it.baseName, it)}
+        gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
+        input = sample.merge(gvcf)
+
+        gnomonicus_workflow(input, params.reference, params.catalogue, params.minor_populations, params.null_positions)
+}
+
+
+workflow batch {
+    // Helper workflow for running a batch locally
+    if (params.help) {
+            log.info """
+            ========================================================================
+            M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
+            
+            Utilises a minos VCF file to produce variations, mutations and
+            drug resistance predictions based on provided a reference genome and a resistance catalogue.
+            Expects each sample to have a corresponding directory with vcf and gvcf
+                
+            Mandatory parameters:
+            ------------------------------------------------------------------------
+            --samples               Path pattern for sample VCFs (e.g. 'samples/*/*.vcf')
+            --gvcfs                 Path pattern for gvcf files (e.g. 'samples/*/*.gvcf')
+            --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
+            --catalogue             Path to the resistance catalogue
+            --minor_populations     Path to a line separated file of genome indices to check for minor populations
+            --null_positions        Path to the null positions file
+            --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
+            """
+            .stripIndent()
+            exit(0)
+        }
+
+
+        //Log pre-run info
+        log.info """
+        ========================================================================
+        M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
+        Parameters used:
+        ------------------------------------------------------------------------
+        --samples               ${params.samples}
+        --gvcfs                 ${params.gvcfs}
+        --reference             ${params.reference}
+        --catalogue             ${params.catalogue}
+        --minor_populations     ${params.minor_populations}
+        --null_positions        ${params.null_positions}
+        --seq_platform          ${params.seq_platform}
+
+        Runtime data:
+        ------------------------------------------------------------------------
+        Running with profile  ${ANSI_GREEN}${workflow.profile}${ANSI_RESET}
+        Running as user       ${ANSI_GREEN}${workflow.userName}${ANSI_RESET}
+        Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
+        """
+        .stripIndent()
+
+    samples = Channel.fromPath("${params.samples}", checkIfExists: true, glob: true)
+            .ifEmpty { error "cannot find any reads matching ${params.samples}" }
+            .map { it -> tuple(it.parent.simpleName, it)}
+            
+    gvcfs = Channel.fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
+            .ifEmpty { error "cannot find any reads matching ${params.gvcfs}" }
+            .map { it -> tuple(it.parent.simpleName, it)}
+
+    input = samples.join(gvcfs).take(2)
+
+    runPrediction(input, params.reference, params.catalogue, params.minor_populations, params.null_positions)
 }
