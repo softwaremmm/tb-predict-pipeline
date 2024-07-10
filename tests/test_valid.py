@@ -1015,8 +1015,8 @@ def test_10():
                     "codon_idx": None,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 3,
-                        "COV": [1, 2],
+                        "DP": 4,
+                        "COV": [1, 3],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
@@ -1032,8 +1032,8 @@ def test_10():
                     "codon_idx": 0,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 3,
-                        "COV": [1, 2],
+                        "DP": 4,
+                        "COV": [1, 3],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
@@ -1049,8 +1049,8 @@ def test_10():
                     "codon_idx": 2,
                     "vcf_evidence": {
                         "GT": [1, 1],
-                        "DP": 3,
-                        "COV": [1, 2],
+                        "DP": 4,
+                        "COV": [1, 3],
                         "GT_CONF": 2.05,
                         "POS": 2,
                         "REF": "aaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccccccccccggggggggggttttttttttaaaaaaaaaaccc",
