@@ -11,11 +11,11 @@ params.seq_platform = "illumina"
 
 //Run gnomonicus
 process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v2.6.13"
+    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.0"
     cpus = 2
     maxRetries 5
     memory = { 
-        params.testing=="" ? 16.GB * (0.8 + (task.attempt/5)) : "6GB"
+        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
     }
 
     debug true
@@ -27,7 +27,6 @@ process runPrediction {
         tuple val(sample_id), path(sample), path(gvcf)
         path reference
         path catalogue
-        path minor_populations
         path null_positions
 
     output:
@@ -44,7 +43,7 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --min_dp 3
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 3
         fi
 
         if [ ${params.seq_platform} == 'ont' ]
@@ -53,7 +52,7 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --minor_populations $minor_populations --resistance_genes --min_dp 5
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 5
         fi
 
 
@@ -72,11 +71,10 @@ workflow gnomonicus_workflow {
         samples // Channel of tuples with sample_id, vcf, gvcf
         reference
         catalogue
-        minor_populations
         null_positions
 
     main:
-        gnomonicus_json = runPrediction(samples, reference, catalogue, minor_populations, null_positions)
+        gnomonicus_json = runPrediction(samples, reference, catalogue, null_positions)
 
     emit:
         gnomonicus_json
@@ -99,7 +97,6 @@ workflow {
             --gvcf                  Path to the non-compressed gvcf file
             --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
             --catalogue             Path to the resistance catalogue
-            --minor_populations     Path to a line separated file of genome indices to check for minor populations
             --null_positions        Path to the null positions file
             --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """
@@ -118,7 +115,6 @@ workflow {
         --gvcf                  ${params.gvcf}
         --reference             ${params.reference}
         --catalogue             ${params.catalogue}
-        --minor_populations     ${params.minor_populations}
         --null_positions        ${params.null_positions}
         --seq_platform          ${params.seq_platform}
 
@@ -135,7 +131,7 @@ workflow {
         gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
         input = sample.merge(gvcf)
 
-        gnomonicus_workflow(input, params.reference, params.catalogue, params.minor_populations, params.null_positions)
+        gnomonicus_workflow(input, params.reference, params.catalogue, params.null_positions)
 }
 
 
@@ -156,7 +152,6 @@ workflow batch {
             --gvcfs                 Path pattern for gvcf files (e.g. 'samples/*/*.gvcf')
             --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
             --catalogue             Path to the resistance catalogue
-            --minor_populations     Path to a line separated file of genome indices to check for minor populations
             --null_positions        Path to the null positions file
             --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """
@@ -175,7 +170,6 @@ workflow batch {
         --gvcfs                 ${params.gvcfs}
         --reference             ${params.reference}
         --catalogue             ${params.catalogue}
-        --minor_populations     ${params.minor_populations}
         --null_positions        ${params.null_positions}
         --seq_platform          ${params.seq_platform}
 
@@ -197,5 +191,5 @@ workflow batch {
 
     input = samples.join(gvcfs).take(2)
 
-    runPrediction(input, params.reference, params.catalogue, params.minor_populations, params.null_positions)
+    runPrediction(input, params.reference, params.catalogue, params.null_positions)
 }
