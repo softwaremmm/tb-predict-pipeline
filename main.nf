@@ -13,6 +13,7 @@ params.seq_platform = "illumina"
 process runPrediction {
     container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.0"
     cpus = 2
+    errorStrategy 'retry'
     maxRetries 5
     memory = { 
         params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
