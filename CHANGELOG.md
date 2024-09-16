@@ -1,3 +1,9 @@
+## 1.3.1 (2024-09-16)
+
+### Fix
+
+- explicity retry on error
+
 ## 1.3.0 (2024-08-29)
 
 ### Feat
