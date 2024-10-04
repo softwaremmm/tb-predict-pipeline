@@ -16,7 +16,7 @@ process runPrediction {
     errorStrategy 'retry'
     maxRetries 5
     memory = { 
-        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
+        params.testing=="" ? 8.GB * task.attempt : "6GB"
     }
 
     debug true
