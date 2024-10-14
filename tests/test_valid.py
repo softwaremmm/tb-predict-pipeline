@@ -686,7 +686,7 @@ def test_8():
         "data": {
             "variants": [
                 {
-                    "variant": "25382t>c:0.068",
+                    "variant": "25382t>c:0.067",
                     "nucleotide_index": 25382,
                     "gene_name": "S",
                     "gene_position": 1274,
@@ -706,7 +706,7 @@ def test_8():
                     "vcf_idx": 1,
                 },
                 {
-                    "variant": "21558g>a:0.068",
+                    "variant": "21558g>a:0.067",
                     "nucleotide_index": 21558,
                     "gene_name": "S",
                     "gene_position": -5,
@@ -726,7 +726,7 @@ def test_8():
                     "vcf_idx": 1,
                 },
                 {
-                    "variant": "25252_ins_cc:0.068",
+                    "variant": "25252_ins_cc:0.067",
                     "nucleotide_index": 25252,
                     "gene_name": "S",
                     "gene_position": 3690,
@@ -746,7 +746,7 @@ def test_8():
                     "vcf_idx": 1,
                 },
                 {
-                    "variant": "25283_del_t:0.068",
+                    "variant": "25283_del_t:0.067",
                     "nucleotide_index": 25283,
                     "gene_name": "S",
                     "gene_position": 3721,
@@ -768,39 +768,39 @@ def test_8():
             ],
             "mutations": [
                 {
-                    "mutation": "!1274Q:0.068",
+                    "mutation": "!1274Q:0.067",
                     "gene": "S",
                     "gene_position": 1274,
                     "ref": "taa",
                     "alt": "caa",
                 },
-                {"mutation": "g-5a:0.068", "gene": "S", "gene_position": -5},
-                {"mutation": "3721_del_t:0.068", "gene": "S", "gene_position": 3721},
-                {"mutation": "3690_ins_cc:0.068", "gene": "S", "gene_position": 3690},
+                {"mutation": "g-5a:0.067", "gene": "S", "gene_position": -5},
+                {"mutation": "3721_del_t:0.067", "gene": "S", "gene_position": 3721},
+                {"mutation": "3690_ins_cc:0.067", "gene": "S", "gene_position": 3690},
             ],
             "effects": {
                 "AAA": [
                     {
                         "gene": "S",
-                        "mutation": "!1274Q:0.068",
+                        "mutation": "!1274Q:0.067",
                         "prediction": "R",
                         "evidence": {},
                     },
                     {
                         "gene": "S",
-                        "mutation": "g-5a:0.068",
+                        "mutation": "g-5a:0.067",
                         "prediction": "S",
                         "evidence": {},
                     },
                     {
                         "gene": "S",
-                        "mutation": "3721_del_t:0.068",
+                        "mutation": "3721_del_t:0.067",
                         "prediction": "R",
                         "evidence": {},
                     },
                     {
                         "gene": "S",
-                        "mutation": "3690_ins_cc:0.068",
+                        "mutation": "3690_ins_cc:0.067",
                         "prediction": "S",
                         "evidence": {},
                     },
