@@ -1,3 +1,10 @@
+## 1.3.3 (2024-11-13)
+
+### Fix
+
+- add local profile
+- remove debug and errorStrategy
+
 ## 1.3.2 (2024-10-14)
 
 ### Fix
