@@ -13,13 +13,11 @@ params.seq_platform = "illumina"
 process runPrediction {
     container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.2"
     cpus = 2
-    errorStrategy 'retry'
     maxRetries 5
     memory = { 
         params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
     }
 
-    debug true
     pod label: "name", value: "tb-predict-pipeline:runPrediction"
     pod label: "sample_id", value: "${params.sample_id}"
     pod label: "run_id", value: "${params.run_id}"
