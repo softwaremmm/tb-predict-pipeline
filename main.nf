@@ -81,14 +81,14 @@ workflow gnomonicus_workflow {
         null_positions
 
     main:
-        gnomonicus_json, variants_csv, mutations_csv, effects_csv, predictions_csv = runPrediction(samples, reference, catalogue, null_positions)
+        output_ch = runPrediction(samples, reference, catalogue, null_positions)
 
     emit:
-        gnomonicus_json
-        variants_csv
-        mutations_csv
-        effects_csv
-        predictions_csv
+        output_ch.gnomonicus_json
+        output_ch.variants_csv
+        output_ch.mutations_csv
+        output_ch.effects_csv
+        output_ch.predictions_csv
 }
 
 workflow {
