@@ -10,37 +10,17 @@ Pipelines and evaluation are run using a bash script. This should also be automa
 tests/test.sh
 ```
 
-## Conventional Commits
-Use conventional commits when developing for this repo. 
-You should install the pre-commit hooks to check your commit messages.
-You can also install `commitizen` to help with writing conventional commits.
-You can install both through pip/conda. Or see [wiki for other options](https://github.com/GlobalPathogenAnalysisService/Wiki/blob/main/Commitizen.md#installing-commitizenpre-commit)
-
-To install hooks run
+## Tags, Releases, and Committing
+Use conventional commits. This is enforced with commitizen validate action and pre-commit hooks:
 ```bash
-pre-commit install --hook-type commit-msg
+pre-commit install
 ```
 
-To make commit with commitizen run
-```bash
-cz c
-```
+This repo uses a standard gitflow approach, so changes should be first merged into develop and then released to main.
+- In the develop branch semantic versioning is not used. Instead you can reference the commit hash to use it in a workflow.
+- In a release branch you can create a release candidate with `cz bump a.b.c-rcX`. This also creates a tag.
+- When release branch is ready for main run `cz bump a.b.c --files-only`. Manually write a human descriptive changelog. Then push these changes to main and make a release/tag there.
 
-## Tags and Releases
-
-[Commitizen](https://commitizen-tools.github.io/commitizen/) is used to manage versioning of releases. This tool
-can be used to make commits to this repository. Regardless, [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) 
-are required to ensure correct version numbering and changelog population.
-
-**Do not add tags by hand.**
-
-On merging a Pull Request a [GitHub action will run](.github/workflows/bump.yaml), causing Commitizen to:
-* Determine the new [semver](https://semver.org/) based on conventional commits.
-* Replace the previous semver in [.cz.toml](.cz.toml) and other files as specified therein.
-* Update the [CHANGELOG](CHANGELOG.md) based on commit messages.
-* Commit these changes to the `main` branch.
-* Create a tag for this commit with the tag name of the newly determined semver.
-* Create a new release from this tag.
 
 ## Run locally with Docker
 ```
