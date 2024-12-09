@@ -11,7 +11,7 @@ params.seq_platform = "illumina"
 
 //Run gnomonicus
 process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.2"
+    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.3"
     cpus = 2
     maxRetries 5
     memory = { 
@@ -30,6 +30,10 @@ process runPrediction {
 
     output:
         tuple val(sample_id), path("resistance_prediction_report.json")
+        path("variants.csv")
+        path("mutations.csv")
+        path("effects.csv")
+        path("predictions.csv")
 
     script:
         """
@@ -42,7 +46,7 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 3
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 3 --csvs all
         fi
 
         if [ ${params.seq_platform} == 'ont' ]
@@ -51,12 +55,16 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 5
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 5 --csvs all
         fi
 
 
         #Get the name of the output JSON to move it to `resistance_prediction_report.json`
         mv \$guid.gnomonicus-out.json resistance_prediction_report.json
+        mv \$guid.variants.csv variants.csv
+        mv \$guid.mutations.csv mutations.csv
+        mv \$guid.effects.csv effects.csv
+        mv \$guid.predictions.csv predictions.csv
 
         """
     stub:
@@ -73,10 +81,14 @@ workflow gnomonicus_workflow {
         null_positions
 
     main:
-        gnomonicus_json = runPrediction(samples, reference, catalogue, null_positions)
+        gnomonicus_json, variants_csv, mutations_csv, effects_csv, predictions_csv = runPrediction(samples, reference, catalogue, null_positions)
 
     emit:
         gnomonicus_json
+        variants_csv
+        mutations_csv
+        effects_csv
+        predictions_csv
 }
 
 workflow {
