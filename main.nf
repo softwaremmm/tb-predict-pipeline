@@ -29,11 +29,11 @@ process runPrediction {
         path null_positions
 
     output:
-        tuple val(sample_id), path("resistance_prediction_report.json")
-        path("variants.csv")
-        path("mutations.csv")
-        path("effects.csv")
-        path("predictions.csv")
+        tuple val(sample_id), path("resistance_prediction_report.json"), emit: gnomonicus_json
+        path("variants.csv"), emit: variants_csv
+        path("mutations.csv"), emit: mutations_csv
+        path("effects.csv"), emit: effects_csv
+        path("predictions.csv"), emit: predictions_csv
 
     script:
         """
