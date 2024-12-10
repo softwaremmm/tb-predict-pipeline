@@ -46,7 +46,7 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 3 --csvs all
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --min_dp 3 --csvs all
         fi
 
         if [ ${params.seq_platform} == 'ont' ]
@@ -55,7 +55,7 @@ process runPrediction {
             mv $sample original/\$vcf_name.vcf
             merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
 
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 5 --csvs all
+            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --min_dp 5 --csvs all
         fi
 
 
