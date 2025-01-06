@@ -15,7 +15,7 @@ process runPrediction {
     cpus = 2
     maxRetries 5
     memory = { 
-        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
+        params.testing=="" ? 8.GB * task.attempt : "6GB"
     }
 
     pod label: "name", value: "tb-predict-pipeline:runPrediction"
