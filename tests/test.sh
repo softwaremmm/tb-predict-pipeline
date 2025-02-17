@@ -28,7 +28,7 @@ fi
 
 source gnomonicus_venv/bin/activate
 
-gnomonicus_version=$(cat main.nf | grep -E "container\ ?=\ ?" | cut -d ":" -f 2 | tr -d \")
+gnomonicus_version=$(cat main.nf | grep -E "container\ " | cut -d ":" -f 2 | tr -d \")
 
 
 #Match the gnomonicus version to the version used in the container
@@ -92,4 +92,3 @@ keepOutput 15
 pip install pytest recursive_diff
 
 pytest --exitfirst --verbose --failed-first -vv
-

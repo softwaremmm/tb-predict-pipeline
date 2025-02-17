@@ -1,95 +1,22 @@
 #!/usr/bin/env nextflow
 
-//Set DSL2 syntax
-nextflow.enable.dsl=2
-
-//Define ANSI colours for ease
-ANSI_GREEN = "\033[1;32m"
-ANSI_RESET = "\033[0m"
-
+// default parameters
 params.seq_platform = "illumina"
 
-//Run gnomonicus
-process runPrediction {
-    container = "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.4"
-    cpus = 2
-    maxRetries 5
-    memory = { 
-        params.testing=="" ? 8.GB * (0.8 + (task.attempt/5)) : "6GB"
-    }
-
-    pod label: "name", value: "tb-predict-pipeline:runPrediction"
-    pod label: "sample_id", value: "${params.sample_id}"
-    pod label: "run_id", value: "${params.run_id}"
-
-    input:
-        tuple val(sample_id), path(sample), path(gvcf)
-        path reference
-        path catalogue
-        path null_positions
-
-    output:
-        tuple val(sample_id), path("resistance_prediction_report.json")
-
-    script:
-        """
-        vcf_name=\$(basename $sample)
-        guid=\${vcf_name%.vcf}
-
-        if [ ${params.seq_platform} == 'illumina' ]
-        then
-            mkdir original
-            mv $sample original/\$vcf_name.vcf
-            merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
-
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 3
-        fi
-
-        if [ ${params.seq_platform} == 'ont' ]
-        then
-            mkdir original
-            mv $sample original/\$vcf_name.vcf
-            merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf $gvcf --resistant-positions $null_positions --output $sample
-
-            gnomonicus --genome_object $reference --catalogue $catalogue --vcf_file $sample --json --output_dir . --resistance_genes --min_dp 5
-        fi
-
-
-        #Get the name of the output JSON to move it to `resistance_prediction_report.json`
-        mv \$guid.gnomonicus-out.json resistance_prediction_report.json
-
-        """
-    stub:
-        """
-        touch resistance_prediction_report.json
-        """
-}
-
-workflow gnomonicus_workflow {
-    take:
-        samples // Channel of tuples with sample_id, vcf, gvcf
-        reference
-        catalogue
-        null_positions
-
-    main:
-        gnomonicus_json = runPrediction(samples, reference, catalogue, null_positions)
-
-    emit:
-        gnomonicus_json
-}
-
 workflow {
-    main:
-        //Setup so --help triggers the help message
-        if (params.help) {
-            log.info """
+    ANSI_GREEN = "\033[1;32m"
+    ANSI_RESET = "\033[0m"
+
+    //Setup so --help triggers the help message
+    if (params.help) {
+        log.info(
+            """
             ========================================================================
             M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
-            
+
             Utilises a minos VCF file to produce variations, mutations and
             drug resistance predictions based on provided a reference genome and a resistance catalogue.
-                
+
             Mandatory parameters:
             ------------------------------------------------------------------------
             --sample                Path to the sample minos VCF
@@ -98,14 +25,15 @@ workflow {
             --catalogue             Path to the resistance catalogue
             --null_positions        Path to the null positions file
             --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
-            """
-            .stripIndent()
-            exit(0)
-        }
+            """.stripIndent()
+        )
+        exit(0)
+    }
 
 
-        //Log pre-run info
-        log.info """
+    //Log pre-run info
+    log.info(
+        """
         ========================================================================
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
@@ -122,29 +50,48 @@ workflow {
         Running with profile  ${ANSI_GREEN}${workflow.profile}${ANSI_RESET}
         Running as user       ${ANSI_GREEN}${workflow.userName}${ANSI_RESET}
         Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
-        """
-        .stripIndent()
+        """.stripIndent()
+    )
 
-        sample = Channel.fromPath("${params.sample}", checkIfExists: true)
-            .map { it -> tuple(it.baseName, it)}
-        gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
-        input = sample.merge(gvcf)
+    sample = Channel
+        .fromPath("${params.sample}", checkIfExists: true)
+        .map { it -> tuple(it.baseName, it) }
+    gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
+    input = sample.merge(gvcf)
 
-        gnomonicus_workflow(input, params.reference, params.catalogue, params.null_positions)
+    gnomonicus_workflow(input, params.reference, params.catalogue, params.null_positions)
+}
+
+workflow gnomonicus_workflow {
+    take:
+    samples // Channel of tuples with sample_id, vcf, gvcf
+    reference
+    catalogue
+    null_positions
+
+    main:
+    gnomonicus_json = runPrediction(samples, reference, catalogue, null_positions)
+
+    emit:
+    gnomonicus_json
 }
 
 
 workflow batch {
+    ANSI_GREEN = "\033[1;32m"
+    ANSI_RESET = "\033[0m"
+
     // Helper workflow for running a batch locally
     if (params.help) {
-            log.info """
+        log.info(
+            """
             ========================================================================
             M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
-            
+
             Utilises a minos VCF file to produce variations, mutations and
             drug resistance predictions based on provided a reference genome and a resistance catalogue.
             Expects each sample to have a corresponding directory with vcf and gvcf
-                
+
             Mandatory parameters:
             ------------------------------------------------------------------------
             --samples               Path pattern for sample VCFs (e.g. 'samples/*/*.vcf')
@@ -153,14 +100,15 @@ workflow batch {
             --catalogue             Path to the resistance catalogue
             --null_positions        Path to the null positions file
             --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
-            """
-            .stripIndent()
-            exit(0)
-        }
+            """.stripIndent()
+        )
+        exit(0)
+    }
 
 
-        //Log pre-run info
-        log.info """
+    //Log pre-run info
+    log.info(
+        """
         ========================================================================
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
@@ -177,18 +125,78 @@ workflow batch {
         Running with profile  ${ANSI_GREEN}${workflow.profile}${ANSI_RESET}
         Running as user       ${ANSI_GREEN}${workflow.userName}${ANSI_RESET}
         Launch directory      ${ANSI_GREEN}${workflow.launchDir}${ANSI_RESET}
-        """
-        .stripIndent()
+        """.stripIndent()
+    )
 
-    samples = Channel.fromPath("${params.samples}", checkIfExists: true, glob: true)
-            .ifEmpty { error "cannot find any reads matching ${params.samples}" }
-            .map { it -> tuple(it.parent.simpleName, it)}
-            
-    gvcfs = Channel.fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
-            .ifEmpty { error "cannot find any reads matching ${params.gvcfs}" }
-            .map { it -> tuple(it.parent.simpleName, it)}
+    samples = Channel
+        .fromPath("${params.samples}", checkIfExists: true, glob: true)
+        .ifEmpty { error("cannot find any reads matching ${params.samples}") }
+        .map { it -> tuple(it.parent.simpleName, it) }
+
+    gvcfs = Channel
+        .fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
+        .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
+        .map { it -> tuple(it.parent.simpleName, it) }
 
     input = samples.join(gvcfs).take(2)
 
     runPrediction(input, params.reference, params.catalogue, params.null_positions)
+}
+
+
+//Run gnomonicus
+process runPrediction {
+    container "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.4"
+    cpus 2
+    maxRetries 5
+    memory {
+        params.testing == "" ? 8.GB * (0.8 + (task.attempt / 5)) : "6GB"
+    }
+
+    pod label: "name", value: "tb-predict-pipeline:runPrediction"
+    pod label: "sample_id", value: "${params.sample_id}"
+    pod label: "run_id", value: "${params.run_id}"
+
+    input:
+    tuple val(sample_id), path(sample), path(gvcf)
+    path reference
+    path catalogue
+    path null_positions
+
+    output:
+    tuple val(sample_id), path("resistance_prediction_report.json")
+
+    script:
+    """
+    vcf_name=\$(basename ${sample})
+    guid=\${vcf_name%.vcf}
+
+    if [ ${params.seq_platform} == 'illumina' ]
+    then
+        mkdir original
+        mv ${sample} original/\$vcf_name.vcf
+        merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf ${gvcf} --resistant-positions ${null_positions} --output ${sample}
+
+        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file ${sample} --json --output_dir . --resistance_genes --min_dp 3
+    fi
+
+    if [ ${params.seq_platform} == 'ont' ]
+    then
+        mkdir original
+        mv ${sample} original/\$vcf_name.vcf
+        merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf ${gvcf} --resistant-positions ${null_positions} --output ${sample}
+
+        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file ${sample} --json --output_dir . --resistance_genes --min_dp 5
+    fi
+
+
+    #Get the name of the output JSON to move it to `resistance_prediction_report.json`
+    mv \$guid.gnomonicus-out.json resistance_prediction_report.json
+
+    """
+
+    stub:
+    """
+    touch resistance_prediction_report.json
+    """
 }
