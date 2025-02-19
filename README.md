@@ -2,6 +2,53 @@
 # TB-Predict-Pipeline
 Nextflow pipeline for producing variants, mutations and effects of a specified (minos) VCF file
 
+## Requirements
+- [Docker](https://docs.docker.com/get-docker/)
+- Nextflow
+
+
+## Running the NextFlow
+Workflow takes parameters:
+- seq_platform. `ont` or `illumina` (`illumina` by default)
+- sample. path to vcf file, likely from minos
+- gvcf. Path to gvcf.
+- reference. reference gbk file
+- catalogue. Path to mutations catalogue
+- null_position. Path to list of null positions.
+
+To save output files need to set `--publish true` which will save output files to `results`.
+
+Example running locally:
+```
+nextflow run . -profile local --publish true --seq_platform illumina \
+    --sample tests/test-cases/NC_045512.2-S_E484K-minos.vcf \
+    --gvcf tests/test-cases/empty.gvcf \
+    --reference tests/test-cases/NC_045512.2.gbk \
+    --catalogue tests/test-cases/NC_045512.2-test-catalogue.csv \
+    --null_positions tests/test-cases/no-null-positions.txt
+```
+
+### Batch locally
+To run a batch of files locally though this pipeline requires input files to be a folder structure
+- directory
+    - sample1
+        - minos.vcf
+        - minos.gvcf
+    - sample2
+        - minos.vcf
+        - minos.gvcf
+
+Then use entry `batch`, and provide globs for the samples and gvcfs
+
+```bash
+nextflow run . -entry batch -profile local --publish true --seq_platform illumina \
+    --samples "tests/batch_dir/*/*.vcf" \
+    --gvcfs "tests/batch_dir/*/*.gvcf" \
+    --reference tests/test-cases/NC_045512.2.gbk \
+    --catalogue tests/test-cases/NC_045512.2-test-catalogue.csv \
+    --null_positions tests/test-cases/no-null-positions.txt
+```
+
 ## Tests
 As this is a very simple pipeline which just calls `gnomonicus`, the majority of testing occurs within `gnomonicus`. However, the included tests cover some edge cases of files being produced, as well as ensuring files are placed in correct places.
 ### Run the tests
@@ -10,24 +57,6 @@ Pipelines and evaluation are run using a bash script. This should also be automa
 tests/test.sh
 ```
 
-## Tags, Releases, and Committing
-Use conventional commits. This is enforced with commitizen validate action and pre-commit hooks:
-```bash
-pre-commit install
-```
-
-This repo uses a standard gitflow approach, so changes should be first merged into develop and then released to main.
-- In the develop branch semantic versioning is not used. Instead you can reference the commit hash to use it in a workflow.
-- In a release branch you can create a release candidate with `cz bump a.b.c-rcX`. This also creates a tag.
-- When release branch is ready for main run `cz bump a.b.c --files-only`. Manually write a human descriptive changelog. Then push these changes to main and make a release/tag there.
-
-
-## Run locally with Docker
-```
-git clone https://github.com/oxfordmmm/tb-predict-pipeline
-cd tb-predict-pipeline
-nextflow run . -profile docker --sample <absolute sample path> --reference <absolute reference path> --catalogue <absolute catalogue path> --output_dir <absolute output directory path>
-```
 
 ## Run using Nextflow's kuberun
 Kuberun is the only way I've found to get this running with Kubernetes. However, I have only tested this on an SP3 stack with Kubernetes setup so YMMV.
@@ -74,3 +103,14 @@ sudo usermod -aG docker $USER && newgrp docker
 *** restart or log out for user changes (or use su - $USER) ***
 minikube start
 ```
+
+## Tags, Releases, and Committing
+Use conventional commits. This is enforced with commitizen validate action and pre-commit hooks:
+```bash
+pre-commit install
+```
+
+This repo uses a standard gitflow approach, so changes should be first merged into develop and then released to main.
+- In the develop branch semantic versioning is not used. Instead you can reference the commit hash to use it in a workflow.
+- In a release branch you can create a release candidate with `cz bump a.b.c-rcX`. This also creates a tag.
+- When release branch is ready for main run `cz bump a.b.c --files-only`. Manually write a human descriptive changelog. Then push these changes to main and make a release/tag there.
