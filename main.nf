@@ -146,6 +146,7 @@ workflow batch {
 
 //Run gnomonicus
 process runPrediction {
+    publishDir "results", enabled: params.publish, mode: 'copy', saveAs: { filename -> sample_name + "_" + filename }
     container "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.4"
     cpus 2
     maxRetries 5
