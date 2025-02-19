@@ -59,18 +59,23 @@ workflow {
     gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
     input = sample.merge(gvcf)
 
-    gnomonicus_workflow(input, params.reference, params.catalogue, params.null_positions)
+    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
+    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+
+    gnomonicus_workflow(input, params.seq_platform, reference, catalogue, null_positions)
 }
 
 workflow gnomonicus_workflow {
     take:
     samples // Channel of tuples with sample_id, vcf, gvcf
+    seq_platform
     reference
     catalogue
     null_positions
 
     main:
-    gnomonicus_json = runPrediction(samples, reference, catalogue, null_positions)
+    gnomonicus_json = runPrediction(samples, seq_platform, reference, catalogue, null_positions)
 
     emit:
     gnomonicus_json
@@ -138,9 +143,15 @@ workflow batch {
         .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
         .map { it -> tuple(it.parent.simpleName, it) }
 
-    input = samples.join(gvcfs).take(2)
+    input = samples.join(gvcfs)
 
-    runPrediction(input, params.reference, params.catalogue, params.null_positions)
+    input.take(3).view()
+
+    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
+    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+
+    runPrediction(input, params.seq_platform, reference, catalogue, null_positions)
 }
 
 
@@ -159,20 +170,21 @@ process runPrediction {
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-    tuple val(sample_id), path(sample), path(gvcf)
+    tuple val(sample_name), path(sample), path(gvcf)
+    val seq_platform
     path reference
     path catalogue
     path null_positions
 
     output:
-    tuple val(sample_id), path("resistance_prediction_report.json")
+    tuple val(sample_name), path("resistance_prediction_report.json")
 
     script:
     """
     vcf_name=\$(basename ${sample})
     guid=\${vcf_name%.vcf}
 
-    if [ ${params.seq_platform} == 'illumina' ]
+    if [ ${seq_platform} == 'illumina' ]
     then
         mkdir original
         mv ${sample} original/\$vcf_name.vcf
@@ -181,7 +193,7 @@ process runPrediction {
         gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file ${sample} --json --output_dir . --resistance_genes --min_dp 3
     fi
 
-    if [ ${params.seq_platform} == 'ont' ]
+    if [ ${seq_platform} == 'ont' ]
     then
         mkdir original
         mv ${sample} original/\$vcf_name.vcf
