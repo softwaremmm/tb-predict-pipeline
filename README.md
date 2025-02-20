@@ -16,11 +16,11 @@ Workflow takes parameters:
 - catalogue. Path to mutations catalogue
 - null_position. Path to list of null positions.
 
-To save output files need to set `--publish true` which will save output files to `results`.
+To save output files need to set `--publish_dir` which will save output files to directory provided.
 
 Example running locally:
-```
-nextflow run . -profile local --publish true --seq_platform illumina \
+```bash
+nextflow run . -profile local --publish_dir results --seq_platform illumina \
     --sample tests/test-cases/NC_045512.2-S_E484K-minos.vcf \
     --gvcf tests/test-cases/empty.gvcf \
     --reference tests/test-cases/NC_045512.2.gbk \
@@ -41,7 +41,7 @@ To run a batch of files locally though this pipeline requires input files to be 
 Then use entry `batch`, and provide globs for the samples and gvcfs
 
 ```bash
-nextflow run . -entry batch -profile local --publish true --seq_platform illumina \
+nextflow run . -entry batch -profile local --publish_dir results --seq_platform illumina \
     --samples "tests/batch_dir/*/*.vcf" \
     --gvcfs "tests/batch_dir/*/*.gvcf" \
     --reference tests/test-cases/NC_045512.2.gbk \
