@@ -1,3 +1,7 @@
+## 1.4.0
+
+Use Nextflow linting via Nextflow language server.
+
 ## 1.3.3 (2024-11-13)
 
 ### Fix
