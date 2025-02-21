@@ -1,6 +1,18 @@
 ## 1.4.0
 
 Use Nextflow linting via Nextflow language server.
+Improve local running
+
+### Fix
+
+- Make seq_platform a process input rather than use params.
+
+### Chore
+
+- use publish_dir
+- simplify nextflow configs and readme
+- add examples
+- allow reference data to be given as relative paths
 
 ## 1.3.3 (2024-11-13)
 
