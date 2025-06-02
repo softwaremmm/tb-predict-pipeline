@@ -1,3 +1,7 @@
+## New
+
+- Rename input files in runPrediction to simplify code
+
 ## 1.4.0
 
 Use Nextflow linting via Nextflow language server.
