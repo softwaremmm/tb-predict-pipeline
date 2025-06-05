@@ -170,7 +170,7 @@ process runPrediction {
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-    tuple val(sample_name), path(sample), path(gvcf)
+    tuple val(sample_name), path("variants.vcf"), path("all_rows.gvcf")
     val seq_platform
     path reference
     path catalogue
@@ -181,31 +181,19 @@ process runPrediction {
 
     script:
     """
-    vcf_name=\$(basename ${sample})
-    guid=\${vcf_name%.vcf}
+    merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf"
 
     if [ ${seq_platform} == 'illumina' ]
     then
-        mkdir original
-        mv ${sample} original/\$vcf_name.vcf
-        merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf ${gvcf} --resistant-positions ${null_positions} --output ${sample}
-
-        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file ${sample} --json --output_dir . --resistance_genes --min_dp 3
+        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp 3
     fi
 
     if [ ${seq_platform} == 'ont' ]
     then
-        mkdir original
-        mv ${sample} original/\$vcf_name.vcf
-        merge-vcfs --minos_vcf original/\$vcf_name.vcf --gvcf ${gvcf} --resistant-positions ${null_positions} --output ${sample}
-
-        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file ${sample} --json --output_dir . --resistance_genes --min_dp 5
+        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp 5
     fi
 
-
-    #Get the name of the output JSON to move it to `resistance_prediction_report.json`
-    mv \$guid.gnomonicus-out.json resistance_prediction_report.json
-
+    mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     """
 
     stub:
