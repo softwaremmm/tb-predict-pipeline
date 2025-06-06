@@ -1,3 +1,19 @@
+## New
+Lots of edge cases which we found during the ESCMID runs
+
+gnomonicus:
+* Various fixes around always producing CSVs when empty. Not relevant here
+
+piezo:
+* Ensure a deletion starting in the promoter is interpreted as a frameshift if it is actually a frameshift. e.g gene@-2_del_10 is equivalent to gene@-2_del_2 as well as gene@1_fs,
+* Ensure null calls can't hit any wildcard rules
+
+grumpy:
+* Ensure SNPs after deletions are correctly parsed from VCF rows
+* Correctly place minor SNPs at positions we have major deletions (and vice versa)
+* Correct filter/null behaviour
+
+
 ## 1.4.0
 
 Use Nextflow linting via Nextflow language server.
