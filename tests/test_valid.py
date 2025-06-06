@@ -1496,7 +1496,7 @@ def test_12():
             "catalogue_version": "v1.00",
         },
         "data": {
-            "antibiogram": {"INH": "R", "KAN": "F", "MXF": "U", "PZA": "R", "RIF": "R"},
+            "antibiogram": {"INH": "R", "KAN": "F", "MXF": "U", "PZA": "R", "RIF": "U"},
             "variants": [
                 {
                     "variant": "1674048g>x",
@@ -1980,12 +1980,6 @@ def test_12():
                 "RIF": [
                     {
                         "gene": "rpoB",
-                        "mutation": "L452X",
-                        "prediction": "R",
-                        "evidence": {},
-                    },
-                    {
-                        "gene": "rpoB",
                         "mutation": "S450S",
                         "prediction": "S",
                         "evidence": {},
@@ -1996,7 +1990,7 @@ def test_12():
                         "prediction": "U",
                         "evidence": {},
                     },
-                    {"phenotype": "R"},
+                    {"phenotype": "U"},
                 ],
             },
         },
