@@ -1,4 +1,4 @@
-## New
+## 1.5.0
 Lots of edge cases which we found during the ESCMID runs
 
 gnomonicus:
