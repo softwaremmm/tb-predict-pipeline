@@ -13,6 +13,7 @@ grumpy:
 * Correctly place minor SNPs at positions we have major deletions (and vice versa)
 * Correct filter/null behaviour
 
+- Rename input files in runPrediction to simplify code
 
 ## 1.4.0
 
