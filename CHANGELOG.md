@@ -1,4 +1,4 @@
-## New
+## 1.5.0
 Lots of edge cases which we found during the ESCMID runs
 
 gnomonicus:
@@ -13,6 +13,7 @@ grumpy:
 * Correctly place minor SNPs at positions we have major deletions (and vice versa)
 * Correct filter/null behaviour
 
+- Rename input files in runPrediction to simplify code
 
 ## 1.4.0
 
