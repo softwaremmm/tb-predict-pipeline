@@ -158,7 +158,7 @@ workflow batch {
 //Run gnomonicus
 process runPrediction {
     publishDir "${params.publish_dir}", enabled: params.publish_dir != "", mode: "copy", saveAs: { filename -> sample_name + "_" + filename }
-    container "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.9"
+    container "lhr.ocir.io/lrbvkel2wjot/oxfordmmm/gnomonicus:v3.0.10"
     cpus 2
     maxRetries 5
     memory {
@@ -180,18 +180,10 @@ process runPrediction {
     tuple val(sample_name), path("resistance_prediction_report.json")
 
     script:
+    MIN_DP = seq_platform == 'illumina' ? 3 : 5
     """
-    merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf"
-
-    if [ ${seq_platform} == 'illumina' ]
-    then
-        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp 3
-    fi
-
-    if [ ${seq_platform} == 'ont' ]
-    then
-        gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp 5
-    fi
+    merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
+    gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     """
