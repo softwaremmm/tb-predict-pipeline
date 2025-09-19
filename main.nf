@@ -178,6 +178,7 @@ process runPrediction {
 
     output:
     tuple val(sample_name), path("resistance_prediction_report.json")
+    tuple val(sample_name), path("${sample_name}.vcf")
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
