@@ -75,10 +75,11 @@ workflow gnomonicus_workflow {
     null_positions
 
     main:
-    gnomonicus_json = runPrediction(samples, seq_platform, reference, catalogue, null_positions)
+    gnomonicus_out = runPrediction(samples, seq_platform, reference, catalogue, null_positions)
 
     emit:
-    gnomonicus_json
+    gnomonicus_json = gnomonicus_out.json
+    gnomonicus_vcf = gnomonicus_out.vcf
 }
 
 
@@ -177,8 +178,8 @@ process runPrediction {
     path null_positions
 
     output:
-    tuple val(sample_name), path("resistance_prediction_report.json")
-    tuple val(sample_name), path("${sample_name}.vcf")
+    tuple val(sample_name), path("resistance_prediction_report.json"), emit: json
+    tuple val(sample_name), path("${sample_name}.vcf"), emit: vcf
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
