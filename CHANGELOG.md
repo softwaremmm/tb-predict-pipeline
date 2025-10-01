@@ -1,3 +1,9 @@
+## New
+gnomonicus:
+* Only merge null calls from alternate.gvcf (Illumina / Clockwork) or final.full.vcf (ONT / Rundial) 
+into minos.vcf (Illumina / Clockwork) or final.vcf (ONT / Rundial). Merges take place at positions 
+set by the catalogue.
+
 ## 1.5.1
 
 * chore: Parameterise container prefix
