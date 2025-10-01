@@ -188,6 +188,7 @@ process runPrediction {
     gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
+    mv "${sample_name}.vcf" merged.vcf # This will be renamed "final.vcf" in a future update
     """
 
     stub:
