@@ -1,4 +1,4 @@
-## New
+## 1.5.2
 * Output `merged.vcf` (which will become `final,vcf` in a future version)
 
 gnomonicus:
