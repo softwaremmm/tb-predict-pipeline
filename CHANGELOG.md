@@ -1,3 +1,11 @@
+## New
+* Output `merged.vcf` (which will become `final,vcf` in a future version)
+
+gnomonicus:
+* Only merge null calls from `alternate.gvcf` (Illumina / Clockwork) or `final.full.vcf` (ONT / Rundial) 
+into `minos.vcf` (Illumina / Clockwork) or `final.vcf` (ONT / Rundial). Merges take place at positions 
+set by the catalogue.
+
 ## 1.5.1
 
 * chore: Parameterise container prefix
