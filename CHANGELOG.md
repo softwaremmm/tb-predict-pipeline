@@ -2,7 +2,7 @@
 * Update gnomonicus from `v3.0.10` to `v3.0.11`
     * Arbitrary frameshifts are now properly supported. e.g a gene with a range of join(1..30, 40..50)
     * Genes crossing the genome boundary are now supported
-*   Detection of a coding gene without % 3 number of bases no longer causes panic. Instead, such genes are marked as incomplete (via gene name becoming INCOMPLETE_<gene>), and have a warning printed to stderr upon parsing
+    *   Detection of a coding gene without % 3 number of bases no longer causes panic. Instead, such genes are marked as incomplete (via gene name becoming INCOMPLETE_<gene>), and have a warning printed to stderr upon parsing
 
 No effect on TB - these fixes enable NTM genbank files to be used. 
 
