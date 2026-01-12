@@ -80,6 +80,9 @@ workflow gnomonicus_workflow {
     emit:
     gnomonicus_json = gnomonicus_out.json
     gnomonicus_vcf = gnomonicus_out.vcf
+    gnomonicus_variants_csv = gnomonicus_out.variants_csv
+    gnomonicus_mutations_csv = gnomonicus_out.mutations_csv
+    gnomonicus_effects_csv = gnomonicus_out.effects_csv
 }
 
 
@@ -180,15 +183,23 @@ process runPrediction {
     output:
     tuple val(sample_name), path("resistance_prediction_report.json"), emit: json
     tuple val(sample_name), path("merged.vcf"), emit: vcf
+    tuple val(sample_name), path("variants.csv"), emit: variants_csv, optional: true
+    tuple val(sample_name), path("mutations.csv"), emit: mutations_csv, optional: true
+    tuple val(sample_name), path("effects.csv"), emit: effects_csv, optional: true
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
+    // For now we only have a TB catalogue, so only pass the catalogue arg if using the NC_000962.3 / H37Rv reference
+    CATALOGUE = reference ==~ /.*(H37Rv|NC_000962\.3).*/ ? "--catalogue " + catalogue : ""
     """
     merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
-    gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
+    gnomonicus --genome_object ${reference} $CATALOGUE --vcf_file "${sample_name}.vcf" --json --csvs all --output_dir . --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     mv "${sample_name}.vcf" merged.vcf # This will be renamed "final.vcf" in a future update
+    mv "${sample_name}.variants.csv" variants.csv 2> /dev/null || true
+    mv "${sample_name}.mutations.csv" mutations.csv 2> /dev/null || true
+    mv "${sample_name}.effects.csv" effects.csv 2> /dev/null || true
     """
 
     stub:
