@@ -19,12 +19,13 @@ workflow {
 
             Mandatory parameters:
             ------------------------------------------------------------------------
-            --sample                Path to the sample minos VCF
-            --gvcf                  Path to the non-compressed gvcf file
-            --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
-            --catalogue             Path to the resistance catalogue
-            --null_positions        Path to the null positions file
-            --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
+            --sample                  Path to the sample minos VCF
+            --species                 Species of Mycobacteria. Default is 'Mycobacterium tuberculosis'
+            --genbank_reference_dir   Path to the directory containing genbank reference files
+            --gvcf                    Path to the non-compressed gvcf file
+            --catalogue               Path to the resistance catalogue
+            --null_positions          Path to the null positions file
+            --seq_platform            Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """.stripIndent()
         )
         exit(0)
@@ -38,12 +39,13 @@ workflow {
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
         ------------------------------------------------------------------------
-        --sample                ${params.sample}
-        --gvcf                  ${params.gvcf}
-        --reference             ${params.reference}
-        --catalogue             ${params.catalogue}
-        --null_positions        ${params.null_positions}
-        --seq_platform          ${params.seq_platform}
+        --sample                  ${params.sample}
+        --species                 ${params.species}
+        --genbank_reference_dir   ${params.genbank_reference_dir}
+        --gvcf                    ${params.gvcf}
+        --catalogue               ${params.catalogue}
+        --null_positions          ${params.null_positions}
+        --seq_platform            ${params.seq_platform}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -57,25 +59,26 @@ workflow {
         .fromPath("${params.sample}", checkIfExists: true)
         .map { it -> tuple(it.baseName, it) }
     gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
-    input = sample.merge(gvcf)
+    input = sample.merge(gvcf).map { sample_id, vcf, gvcf -> tuple(sample_id, vcf, params.species, gvcf) }
 
-    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
+    genbank_reference_dir = Channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
     catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
     null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
 
-    gnomonicus_workflow(input, params.seq_platform, reference, catalogue, null_positions)
+    gnomonicus_workflow(input, params.seq_platform, genbank_reference_dir, catalogue, null_positions)
 }
 
 workflow gnomonicus_workflow {
     take:
-    samples // Channel of tuples with sample_id, vcf, gvcf
+    samples // Channel of tuples with sample_id, vcf, species, gvcf
     seq_platform
-    reference
+    reference_dir
     catalogue
     null_positions
 
     main:
-    gnomonicus_out = runPrediction(samples, seq_platform, reference, catalogue, null_positions)
+    reference_picked = pick_reference(samples, reference_dir)
+    gnomonicus_out = runPrediction(samples, seq_platform, reference_picked.reference, catalogue, null_positions)
 
     emit:
     gnomonicus_json = gnomonicus_out.json
@@ -99,16 +102,18 @@ workflow batch {
 
             Utilises a minos VCF file to produce variations, mutations and
             drug resistance predictions based on provided a reference genome and a resistance catalogue.
-            Expects each sample to have a corresponding directory with vcf and gvcf
+            Expects each sample to have a corresponding directory with vcf and gvcf.
+            Requires all samples to be of the same species.
 
             Mandatory parameters:
             ------------------------------------------------------------------------
-            --samples               Path pattern for sample VCFs (e.g. 'samples/*/*.vcf')
-            --gvcfs                 Path pattern for gvcf files (e.g. 'samples/*/*.gvcf')
-            --reference             Path to the reference genome's genbank file, or a pickle dump of the corresponding gumpy Genome
-            --catalogue             Path to the resistance catalogue
-            --null_positions        Path to the null positions file
-            --seq_platform          Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
+            --samples                 Path pattern for sample VCFs (e.g. 'samples/*/*.vcf')
+            --gvcfs                   Path pattern for gvcf files (e.g. 'samples/*/*.gvcf')
+            --species                 Species of Mycobacteria. Default is 'Mycobacterium tuberculosis'
+            --genbank_reference_dir   Path to the directory containing genbank reference files
+            --catalogue               Path to the resistance catalogue
+            --null_positions          Path to the null positions file
+            --seq_platform            Sequencing platform used ('illumina' or 'ont'). Default is 'illumina'
             """.stripIndent()
         )
         exit(0)
@@ -122,12 +127,12 @@ workflow batch {
         M Y C O B A C T E R I A L  P R E D I C T I O N  P I P E L I N E
         Parameters used:
         ------------------------------------------------------------------------
-        --samples               ${params.samples}
-        --gvcfs                 ${params.gvcfs}
-        --reference             ${params.reference}
-        --catalogue             ${params.catalogue}
-        --null_positions        ${params.null_positions}
-        --seq_platform          ${params.seq_platform}
+        --samples                 ${params.samples}
+        --gvcfs                   ${params.gvcfs}
+        --genbank_reference_dir   ${params.genbank_reference_dir}
+        --catalogue               ${params.catalogue}
+        --null_positions          ${params.null_positions}
+        --seq_platform            ${params.seq_platform}
 
         Runtime data:
         ------------------------------------------------------------------------
@@ -147,15 +152,68 @@ workflow batch {
         .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
         .map { it -> tuple(it.parent.simpleName, it) }
 
-    input = samples.join(gvcfs)
+    input = samples.join(gvcfs).map { sample_id, vcf, gvcf -> tuple(sample_id, vcf, params.species, gvcf) }
 
     input.take(3).view()
 
-    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
+    genbank_reference_dir = Channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
     catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
     null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
 
-    runPrediction(input, params.seq_platform, reference, catalogue, null_positions)
+    reference_picked = pick_reference(samples, reference_dir)
+    runPrediction(input, params.seq_platform, reference_picked.reference, catalogue, null_positions)
+}
+
+process pick_reference {
+    publishDir "${params.publish_dir}", enabled: params.publish_dir != "", mode: "copy", saveAs: { filename -> sample_name + "_" + filename }
+    // Using viridian-utils as it has a small footprint (~20MB) and includes bash
+    container params.container_prefix + '/vtap/viridian-utils:1.0.2'
+    cpus 1
+    maxRetries 5
+    memory "1GB"
+
+    pod label: "name", value: "tb-predict-pipeline:pick_reference"
+    pod label: "sample_id", value: "${params.sample_id}"
+    pod label: "run_id", value: "${params.run_id}"
+
+    input:
+    tuple val(sample_name), path("variants.vcf"), val(species), path("all_rows.gvcf")
+    path genbank_reference_dir
+
+    output:
+    tuple val(sample_name), path("reference.gbk"), emit: reference, optional: true
+
+    script:
+    """
+    if [[ "$species" == "Mycobacterium tuberculosis" ]]; then
+        cp "${genbank_reference_dir}/NC_000962.3.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium abscessus" ]]; then
+        cp "${genbank_reference_dir}/CU458896.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium avium" ]]; then
+        cp "${genbank_reference_dir}/CP018019.2.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium chelonae" ]]; then
+        cp "${genbank_reference_dir}/CP031516.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium chelonae_A" ]]; then
+        cp "${genbank_reference_dir}/CP031516.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium gwanakae" ]]; then
+        cp "${genbank_reference_dir}/CP031516.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium chimaera" ]]; then
+        cp "${genbank_reference_dir}/CP015278.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium fortuitum" ]]; then
+        cp "${genbank_reference_dir}/AP025518.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium intracellulare" ]]; then
+        cp "${genbank_reference_dir}/NZ_CP085945.1.gbk" reference.gbk
+    elif [[ "$species" == "Mycobacterium kansasii" ]]; then
+        cp "${genbank_reference_dir}/CP006835.1.gbk" reference.gbk
+    else
+        echo "Unsupported species: $species" >&2
+    fi
+    """
+
+    stub:
+    """
+    touch reference.gbk
+    """
 }
 
 
@@ -174,9 +232,9 @@ process runPrediction {
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-    tuple val(sample_name), path("variants.vcf"), path("all_rows.gvcf")
+    tuple val(sample_name), path("variants.vcf"), val(species), path("all_rows.gvcf")
     val seq_platform
-    path reference
+    tuple val(sample_name), path(reference)
     path catalogue
     path null_positions
 
@@ -189,14 +247,17 @@ process runPrediction {
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
-    // For now we only have a TB catalogue, so only pass the catalogue arg if using the NC_000962.3 / H37Rv reference
-    CATALOGUE = reference ==~ /.*(H37Rv|NC_000962\.3).*/ ? "--catalogue " + catalogue : ""
+    // For now we only have a TB catalogue, so only pass the catalogue arg if this is a TB reference
+    // In future this will likely need updating to dynamically select catalogues for other species
+    CATALOGUE = species == "Mycobacterium tuberculosis" ? "--catalogue " + catalogue : ""
     """
     merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
     gnomonicus --genome_object ${reference} $CATALOGUE --vcf_file "${sample_name}.vcf" --json --csvs all --output_dir . --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     mv "${sample_name}.vcf" merged.vcf # This will be renamed "final.vcf" in a future update
+
+    # Depending on the sample, these may or may not exist so suppress errors
     mv "${sample_name}.variants.csv" variants.csv 2> /dev/null || true
     mv "${sample_name}.mutations.csv" mutations.csv 2> /dev/null || true
     mv "${sample_name}.effects.csv" effects.csv 2> /dev/null || true
@@ -205,5 +266,6 @@ process runPrediction {
     stub:
     """
     touch resistance_prediction_report.json
+    touch merged.vcf
     """
 }
