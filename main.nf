@@ -205,6 +205,12 @@ process pick_reference {
         cp "${genbank_reference_dir}/NZ_CP085945.1.gbk" reference.gbk
     elif [[ "$species" == "Mycobacterium kansasii" ]]; then
         cp "${genbank_reference_dir}/CP006835.1.gbk" reference.gbk
+
+    # These are mostly for testing (with the species TEST not being real a genome)
+    elif [[ "$species" == "TEST" ]]; then
+        cp "${genbank_reference_dir}/TEST-DNA.gbk" reference.gbk
+    elif [[ "$species" == "SARS-CoV2" ]]; then
+        cp "${genbank_reference_dir}/NC_045512.2.gbk" reference.gbk
     else
         echo "Unsupported species: $species" >&2
     fi
@@ -247,9 +253,10 @@ process runPrediction {
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
-    // For now we only have a TB catalogue, so only pass the catalogue arg if this is a TB reference
+    // For now we only have a TB catalogue (and catalogues for testing), 
+    // so only pass the catalogue arg if the species is one of these
     // In future this will likely need updating to dynamically select catalogues for other species
-    CATALOGUE = species == "Mycobacterium tuberculosis" ? "--catalogue " + catalogue : ""
+    CATALOGUE = species == "Mycobacterium tuberculosis" || species == "TEST" || species == "SARS-CoV2" ? "--catalogue " + catalogue : ""
     """
     merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
     gnomonicus --genome_object ${reference} $CATALOGUE --vcf_file "${sample_name}.vcf" --json --csvs all --output_dir . --min_dp ${MIN_DP}
