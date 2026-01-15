@@ -171,7 +171,7 @@ process runPrediction {
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-    tuple val(sample_name), path("variants.vcf"), path("all_rows.gvcf")
+    tuple val(sample_name), path("variants.vcf"), path("all_calls.vcf")
     val seq_platform
     path reference
     path catalogue
@@ -184,7 +184,7 @@ process runPrediction {
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
     """
-    merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
+    merge-vcfs --minos_vcf variants.vcf --gvcf all_calls.vcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
     gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
