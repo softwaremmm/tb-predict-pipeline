@@ -1,5 +1,6 @@
 ## New
 * Rename output `merged.vcf` to `final.vcf`.
+* Rename internally used terminology from all_rows to all_calls.
 
 ## 1.5.3
 * Update gnomonicus from `v3.0.10` to `v3.0.11`
