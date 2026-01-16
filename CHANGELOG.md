@@ -1,5 +1,17 @@
+## 1.6.0
+* Rename output `merged.vcf` to `final.vcf`.
+* Rename internally used terminology from all_rows to all_calls.
+
+## 1.5.3
+* Update gnomonicus from `v3.0.10` to `v3.0.11`
+    * Arbitrary frameshifts are now properly supported. e.g a gene with a range of join(1..30, 40..50)
+    * Genes crossing the genome boundary are now supported
+    *   Detection of a coding gene without % 3 number of bases no longer causes panic. Instead, such genes are marked as incomplete (via gene name becoming INCOMPLETE_<gene>), and have a warning printed to stderr upon parsing
+
+No effect on TB - these fixes enable NTM genbank files to be used. 
+
 ## 1.5.2
-* Output `merged.vcf` (which will become `final,vcf` in a future version)
+* Output `merged.vcf` (which will become `final.vcf` in a future version)
 
 gnomonicus:
 * Only merge null calls from `alternate.gvcf` (Illumina / Clockwork) or `final.full.vcf` (ONT / Rundial) 
