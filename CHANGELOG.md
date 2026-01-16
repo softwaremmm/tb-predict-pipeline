@@ -1,4 +1,4 @@
-## New
+## 1.6.0
 * Rename output `merged.vcf` to `final.vcf`.
 * Rename internally used terminology from all_rows to all_calls.
 
