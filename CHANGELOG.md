@@ -1,3 +1,7 @@
+## New
+* Rename output `merged.vcf` to `final.vcf`.
+* Rename internally used terminology from all_rows to all_calls.
+
 ## 1.5.3
 * Update gnomonicus from `v3.0.10` to `v3.0.11`
     * Arbitrary frameshifts are now properly supported. e.g a gene with a range of join(1..30, 40..50)
