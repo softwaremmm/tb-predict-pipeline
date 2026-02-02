@@ -226,7 +226,7 @@ process pick_reference {
 //Run gnomonicus
 process runPrediction {
     publishDir "${params.publish_dir}", enabled: params.publish_dir != "", mode: "copy", saveAs: { filename -> sample_name + "_" + filename }
-    container params.container_prefix + "/oxfordmmm/gnomonicus:v3.0.11-1"
+    container params.container_prefix + "/oxfordmmm/gnomonicus:v3.0.12"
     cpus 2
     maxRetries 5
     memory {
@@ -257,8 +257,9 @@ process runPrediction {
     // so only pass the catalogue arg if the species is one of these
     // In future this will likely need updating to dynamically select catalogues for other species
     CATALOGUE = species == "Mycobacterium tuberculosis" || species == "TEST" || species == "SARS-CoV2" ? "--catalogue " + catalogue : ""
+    MERGE_VCFS = CATALOGUE == "" ? "cp variants.vcf ${sample_name}.vcf" : "merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output \"${sample_name}.vcf\" --min_dp ${MIN_DP}"
     """
-    merge-vcfs --minos_vcf variants.vcf --gvcf all_rows.gvcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
+    ${MERGE_VCFS}
     gnomonicus --genome_object ${reference} $CATALOGUE --vcf_file "${sample_name}.vcf" --json --csvs all --output_dir . --min_dp ${MIN_DP}
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
