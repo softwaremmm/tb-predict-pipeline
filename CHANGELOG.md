@@ -1,4 +1,7 @@
-## New
+## 1.6.1
+* Use image tag `v3.0.11-1` to account for image sync failure.
+
+## 1.6.0
 * Rename output `merged.vcf` to `final.vcf`.
 * Rename internally used terminology from all_rows to all_calls.
 
