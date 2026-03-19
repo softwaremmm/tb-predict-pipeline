@@ -245,11 +245,11 @@ process runPrediction {
     path null_positions
 
     output:
-    tuple val(sample_name), val(species), path("resistance_prediction_report.json"), emit: json
-    tuple val(sample_name), val(species), path("merged.vcf"), emit: vcf
-    tuple val(sample_name), val(species), path("variants.csv"), emit: variants_csv, optional: true
-    tuple val(sample_name), val(species), path("mutations.csv"), emit: mutations_csv, optional: true
-    tuple val(sample_name), val(species), path("effects.csv"), emit: effects_csv, optional: true
+    tuple val(sample_name), path("resistance_prediction_report.json"), val(species), emit: json
+    tuple val(sample_name), path("merged.vcf"), val(species), emit: vcf
+    tuple val(sample_name), path("variants.csv"), val(species), emit: variants_csv, optional: true
+    tuple val(sample_name), path("mutations.csv"), val(species), emit: mutations_csv, optional: true
+    tuple val(sample_name), path("effects.csv"), val(species), emit: effects_csv, optional: true
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
