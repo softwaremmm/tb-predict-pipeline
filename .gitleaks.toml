@@ -3,9 +3,9 @@
 # -----------------------------------------------------------------------------
 title = "Gitleaks Configuration"
 
-# Use the built-in default ruleset
-# (AWS, GitHub, Slack, private keys, etc. remain fully enabled)
-enableDefaultRules = true
+# Extend the built-in default ruleset so we only add repo-specific allowlists.
+[extend]
+useDefault = true
 
 # -----------------------------------------------------------------------------
 # Allowlist (False Positives)
