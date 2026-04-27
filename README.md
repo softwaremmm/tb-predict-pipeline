@@ -10,8 +10,8 @@ Nextflow pipeline for producing variants, mutations and effects of a specified (
 ## Running the NextFlow
 Workflow takes parameters:
 - seq_platform. `ont` or `illumina` (`illumina` by default)
-- sample. path to vcf file, likely from minos
-- gvcf. Path to gvcf.
+- sample. path to vcf file, likely from minos (Can be gzipped)
+- gvcf. Path to gvcf (can be gzipped)
 - reference. reference gbk file
 - catalogue. Path to mutations catalogue
 - null_position. Path to list of null positions.
