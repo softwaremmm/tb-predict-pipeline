@@ -53,9 +53,9 @@ workflow {
         """.stripIndent()
     )
 
-    sample = channel
-        .fromPath("${params.sample}", checkIfExists: true)
-        .map { it -> tuple(it.simpleName, it) }
+    // replace is to catch both .vcf and .vcf.gz files
+    sample = channel.fromPath("${params.sample}", checkIfExists: true)
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
     gvcf = channel.fromPath("${params.gvcf}", checkIfExists: true)
     input = sample.merge(gvcf)
     input.view()
@@ -135,15 +135,14 @@ workflow batch {
         """.stripIndent()
     )
 
-    samples = channel
-        .fromPath("${params.samples}", checkIfExists: true, glob: true)
+    // replace is to catch both .vcf and .vcf.gz files
+    samples = channel.fromPath("${params.samples}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.samples}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
-    gvcfs = channel
-        .fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
+    gvcfs = channel.fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
     input = samples.join(gvcfs)
 
@@ -163,7 +162,7 @@ process runPrediction {
     container params.container_prefix + "/oxfordmmm/gnomonicus:v3.1.1"
     cpus 2
     maxRetries 5
-    memory {params.testing == "" ? 8.GB + (4.GB * (task.attempt - 1)) : "6GB"}
+    memory { params.testing == "" ? 8.GB + (4.GB * (task.attempt - 1)) : "6GB" }
 
     pod label: "name", value: "tb-predict-pipeline:runPrediction"
     pod label: "sample_id", value: "${params.sample_id}"
