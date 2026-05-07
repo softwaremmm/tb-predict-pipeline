@@ -250,6 +250,7 @@ process runPrediction {
     tuple val(sample_name), path("variants.csv"), val(species), emit: variants_csv, optional: true
     tuple val(sample_name), path("mutations.csv"), val(species), emit: mutations_csv, optional: true
     tuple val(sample_name), path("effects.csv"), val(species), emit: effects_csv, optional: true
+    tuple val(sample_name), path("predictions.csv"), val(species), emit: predictions_csv, optional: true
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
@@ -269,6 +270,7 @@ process runPrediction {
     mv "${sample_name}.variants.csv" variants.csv 2> /dev/null || true
     mv "${sample_name}.mutations.csv" mutations.csv 2> /dev/null || true
     mv "${sample_name}.effects.csv" effects.csv 2> /dev/null || true
+    mv "${sample_name}.predictions.csv" predictions.csv 2> /dev/null || true
     """
 
     stub:
