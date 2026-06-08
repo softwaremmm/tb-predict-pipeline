@@ -86,6 +86,7 @@ workflow gnomonicus_workflow {
     gnomonicus_variants_csv = gnomonicus_out.variants_csv
     gnomonicus_mutations_csv = gnomonicus_out.mutations_csv
     gnomonicus_effects_csv = gnomonicus_out.effects_csv
+    gnomonicus_predictions_csv = gnomonicus_out.predictions_csv
 }
 
 
