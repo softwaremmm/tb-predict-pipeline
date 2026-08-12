@@ -1,6 +1,6 @@
 ## New
 
-* Support gzipped input files to process
+* Support different refs
 
 ## 1.6.1
 * Use image tag `v3.0.11-1` to account for image sync failure.

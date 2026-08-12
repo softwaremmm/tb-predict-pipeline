@@ -10,43 +10,37 @@ Nextflow pipeline for producing variants, mutations and effects of a specified (
 ## Running the NextFlow
 Workflow takes parameters:
 - seq_platform. `ont` or `illumina` (`illumina` by default)
-- sample. path to vcf file, likely from minos (Can be gzipped)
-- gvcf. Path to gvcf (can be gzipped)
-- reference. reference gbk file
-- catalogue. Path to mutations catalogue
-- null_position. Path to list of null positions.
+- samples. path to vcf files, likely from minos
+- gvcfs. Path to gvcfs
+- species. Name of species being processed
+- reference_data_dir. species will be used to look up relevant reference data
 
 To save output files need to set `--publish_dir` which will save output files to directory provided.
 
 Example running locally:
 ```bash
 nextflow run . -profile local --publish_dir results --seq_platform illumina \
-    --sample tests/test-cases/NC_045512.2-S_E484K-minos.vcf \
-    --gvcf tests/test-cases/empty.gvcf \
-    --reference tests/test-cases/NC_045512.2.gbk \
-    --catalogue tests/test-cases/NC_045512.2-test-catalogue.csv \
-    --null_positions tests/test-cases/no-null-positions.txt
+    --samples tests/test-cases/NC_045512.2-S_E484K-minos.vcf \
+    --gvcfs tests/test-cases/empty.gvcf \
+    --species "Mycobacterium tuberculosis" \
+    --reference_data_dir tests/test-cases/
 ```
 
 ### Batch locally
-To run a batch of files locally though this pipeline requires input files to be a folder structure
-- directory
-    - sample1
-        - minos.vcf
-        - minos.gvcf
-    - sample2
-        - minos.vcf
-        - minos.gvcf
+To run a batch of files locally though this pipeline requires input files to have the same root in order to be matched. For example:
+- sample1_minos.vcf
+- sample1_minos.gvcf
+- sample2_minos.vcf
+- sample2_minos.gvcf
 
-Then use entry `batch`, and provide globs for the samples and gvcfs
+Then provide globs for the samples and gvcfs
 
 ```bash
 nextflow run . -entry batch -profile local --publish_dir results --seq_platform illumina \
-    --samples "tests/batch_dir/*/*.vcf" \
-    --gvcfs "tests/batch_dir/*/*.gvcf" \
-    --reference tests/test-cases/NC_045512.2.gbk \
-    --catalogue tests/test-cases/NC_045512.2-test-catalogue.csv \
-    --null_positions tests/test-cases/no-null-positions.txt
+    --samples "tests/batch_dir/*.vcf" \
+    --gvcfs "tests/batch_dir/*.gvcf" \
+    --species "Mycobacterium tuberculosis" \
+    --reference_data_dir tests/test-cases/
 ```
 
 ## Tests
