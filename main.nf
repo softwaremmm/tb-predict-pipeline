@@ -55,15 +55,16 @@ workflow {
         """.stripIndent()
     )
 
-    sample = Channel
-        .fromPath("${params.sample}", checkIfExists: true)
-        .map { it -> tuple(it.baseName, it) }
-    gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
+    // replace is to catch both .vcf and .vcf.gz files
+    sample = channel.fromPath("${params.sample}", checkIfExists: true)
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
+    gvcf = channel.fromPath("${params.gvcf}", checkIfExists: true)
     input = sample.merge(gvcf).map { sample_id, vcf, gvcf -> tuple(sample_id, vcf, params.species, gvcf) }
+    input.view()
 
-    genbank_reference_dir = Channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
-    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
-    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+    genbank_reference_dir = channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
+    catalogue = channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = channel.fromPath(params.null_positions, checkIfExists: true).first()
 
     gnomonicus_workflow(input, params.seq_platform, genbank_reference_dir, catalogue, null_positions)
 }
@@ -143,23 +144,22 @@ workflow batch {
         """.stripIndent()
     )
 
-    samples = Channel
-        .fromPath("${params.samples}", checkIfExists: true, glob: true)
+    // replace is to catch both .vcf and .vcf.gz files
+    samples = channel.fromPath("${params.samples}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.samples}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
-    gvcfs = Channel
-        .fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
+    gvcfs = channel.fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
     input = samples.join(gvcfs).map { sample_id, vcf, gvcf -> tuple(sample_id, vcf, params.species, gvcf) }
 
     input.take(3).view()
 
-    genbank_reference_dir = Channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
-    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
-    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+    genbank_reference_dir = channel.fromPath(params.genbank_reference_dir, checkIfExists: true).first()
+    catalogue = channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = channel.fromPath(params.null_positions, checkIfExists: true).first()
 
     reference_picked = pick_reference(samples, reference_dir)
     runPrediction(input, params.seq_platform, reference_picked.reference, catalogue, null_positions)
@@ -230,16 +230,14 @@ process runPrediction {
     container params.container_prefix + "/oxfordmmm/gnomonicus:v3.1.1"
     cpus 2
     maxRetries 5
-    memory {
-        params.testing == "" ? 8.GB * (0.8 + (task.attempt / 5)) : "6GB"
-    }
+    memory { params.testing == "" ? 8.GB + (4.GB * (task.attempt - 1)) : "6GB" }
 
     pod label: "name", value: "tb-predict-pipeline:runPrediction"
     pod label: "sample_id", value: "${params.sample_id}"
     pod label: "run_id", value: "${params.run_id}"
 
     input:
-    tuple val(sample_name), path("variants.vcf"), val(species), path("all_rows.gvcf")
+    tuple val(sample_name), path("variants.vcf"), val(species), path("all_calls.vcf")
     val seq_platform
     tuple val(sample_name), path(reference)
     path catalogue
@@ -247,7 +245,7 @@ process runPrediction {
 
     output:
     tuple val(sample_name), path("resistance_prediction_report.json"), val(species), emit: json
-    tuple val(sample_name), path("merged.vcf"), val(species), emit: vcf
+    tuple val(sample_name), path("final.vcf"), val(species), emit: vcf
     tuple val(sample_name), path("variants.csv"), val(species), emit: variants_csv, optional: true
     tuple val(sample_name), path("mutations.csv"), val(species), emit: mutations_csv, optional: true
     tuple val(sample_name), path("effects.csv"), val(species), emit: effects_csv, optional: true
@@ -255,7 +253,7 @@ process runPrediction {
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
-    // For now we only have a TB catalogue (and catalogues for testing), 
+    // For now we only have a TB catalogue (and catalogues for testing),
     // so only pass the catalogue arg if the species is one of these
     // In future this will likely need updating to dynamically select catalogues for other species
     CATALOGUE = species == "Mycobacterium tuberculosis" || species == "TEST" || species == "SARS-CoV2" ? "--catalogue " + catalogue : ""
