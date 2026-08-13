@@ -81,6 +81,10 @@ workflow gnomonicus_workflow {
     emit:
     gnomonicus_json = gnomonicus_out.json
     gnomonicus_vcf = gnomonicus_out.vcf
+    gnomonicus_variants = gnomonicus_out.variants_table
+    gnomonicus_mutations = gnomonicus_out.mutations_table
+    gnomonicus_effects = gnomonicus_out.effects_table
+    gnomonicus_predictions = gnomonicus_out.predictions_table
 }
 
 
@@ -159,7 +163,7 @@ workflow batch {
 //Run gnomonicus
 process runPrediction {
     publishDir "${params.publish_dir}", enabled: params.publish_dir != "", mode: "copy", saveAs: { filename -> sample_name + "_" + filename }
-    container params.container_prefix + "/oxfordmmm/gnomonicus:v3.1.1"
+    container params.container_prefix + "/oxfordmmm/gnomonicus:v3.1.3"
     cpus 2
     maxRetries 5
     memory { params.testing == "" ? 8.GB + (4.GB * (task.attempt - 1)) : "6GB" }
@@ -178,6 +182,11 @@ process runPrediction {
     output:
     tuple val(sample_name), path("resistance_prediction_report.json"), emit: json
     tuple val(sample_name), path("final.vcf"), emit: vcf
+    tuple val(sample_name), path("variants.parquet"), emit: variants_table
+    tuple val(sample_name), path("mutations.parquet"), emit: mutations_table
+    tuple val(sample_name), path("effects.parquet"), emit: effects_table
+    tuple val(sample_name), path("predictions.parquet"), emit: predictions_table
+    
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
@@ -196,11 +205,31 @@ process runPrediction {
     fi
 
 
-    merge-vcfs --minos_vcf \${variants} --gvcf \${all_calls} --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
-    gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
+    # Merge in GVCF rows at resistance SNPs to ensure we can detect null calls
+    # at these sites (sometimes minos doesn't give us these)
+    merge-vcfs --minos_vcf \${variants} \
+            --gvcf \${all_calls} \
+            --resistant-positions ${null_positions} \
+            --output "${sample_name}.vcf" \
+            --min_dp ${MIN_DP}
+
+    gnomonicus --genome_object ${reference} \
+            --catalogue ${catalogue} \
+            --vcf_file "${sample_name}.vcf" \
+            --json \
+            --output_dir . \
+            --min_dp ${MIN_DP} \
+            --csvs all \
+            --parquet \
+            --json_resistance_genes_only
+
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     mv "${sample_name}.vcf" final.vcf
+    mv "${sample_name}.variants.parquet" variants.parquet
+    mv "${sample_name}.mutations.parquet" mutations.parquet
+    mv "${sample_name}.effects.parquet" effects.parquet
+    mv "${sample_name}.predictions.parquet" predictions.parquet
 
     find . -type f -name "uncompressed*.vcf" -delete
     """
