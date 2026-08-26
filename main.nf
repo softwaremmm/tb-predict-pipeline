@@ -182,10 +182,10 @@ process runPrediction {
     output:
     tuple val(sample_name), path("resistance_prediction_report.json"), emit: json
     tuple val(sample_name), path("final.vcf"), emit: vcf
-    tuple val(sample_name), path("variants.parquet"), emit: variants_table
-    tuple val(sample_name), path("mutations.parquet"), emit: mutations_table
-    tuple val(sample_name), path("effects.parquet"), emit: effects_table
-    tuple val(sample_name), path("predictions.parquet"), emit: predictions_table
+    tuple val(sample_name), path("variants.parquet"), emit: variants_table, optional: true
+    tuple val(sample_name), path("mutations.parquet"), emit: mutations_table, optional: true
+    tuple val(sample_name), path("effects.parquet"), emit: effects_table, optional: true
+    tuple val(sample_name), path("predictions.parquet"), emit: predictions_table, optional: true
     
 
     script:
@@ -226,10 +226,10 @@ process runPrediction {
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     mv "${sample_name}.vcf" final.vcf
-    mv "${sample_name}.variants.parquet" variants.parquet
-    mv "${sample_name}.mutations.parquet" mutations.parquet
-    mv "${sample_name}.effects.parquet" effects.parquet
-    mv "${sample_name}.predictions.parquet" predictions.parquet
+    mv "${sample_name}.variants.parquet" variants.parquet || true
+    mv "${sample_name}.mutations.parquet" mutations.parquet || true
+    mv "${sample_name}.effects.parquet" effects.parquet || true
+    mv "${sample_name}.predictions.parquet" predictions.parquet || true
 
     find . -type f -name "uncompressed*.vcf" -delete
     """
