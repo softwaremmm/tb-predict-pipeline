@@ -53,15 +53,16 @@ workflow {
         """.stripIndent()
     )
 
-    sample = Channel
-        .fromPath("${params.sample}", checkIfExists: true)
-        .map { it -> tuple(it.baseName, it) }
-    gvcf = Channel.fromPath("${params.gvcf}", checkIfExists: true)
+    // replace is to catch both .vcf and .vcf.gz files
+    sample = channel.fromPath("${params.sample}", checkIfExists: true)
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
+    gvcf = channel.fromPath("${params.gvcf}", checkIfExists: true)
     input = sample.merge(gvcf)
+    input.view()
 
-    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
-    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
-    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+    reference = channel.fromPath(params.reference, checkIfExists: true).first()
+    catalogue = channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = channel.fromPath(params.null_positions, checkIfExists: true).first()
 
     gnomonicus_workflow(input, params.seq_platform, reference, catalogue, null_positions)
 }
@@ -80,6 +81,10 @@ workflow gnomonicus_workflow {
     emit:
     gnomonicus_json = gnomonicus_out.json
     gnomonicus_vcf = gnomonicus_out.vcf
+    gnomonicus_variants = gnomonicus_out.variants_table
+    gnomonicus_mutations = gnomonicus_out.mutations_table
+    gnomonicus_effects = gnomonicus_out.effects_table
+    gnomonicus_predictions = gnomonicus_out.predictions_table
 }
 
 
@@ -134,23 +139,22 @@ workflow batch {
         """.stripIndent()
     )
 
-    samples = Channel
-        .fromPath("${params.samples}", checkIfExists: true, glob: true)
+    // replace is to catch both .vcf and .vcf.gz files
+    samples = channel.fromPath("${params.samples}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.samples}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
-    gvcfs = Channel
-        .fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
+    gvcfs = channel.fromPath("${params.gvcfs}", checkIfExists: true, glob: true)
         .ifEmpty { error("cannot find any reads matching ${params.gvcfs}") }
-        .map { it -> tuple(it.parent.simpleName, it) }
+        .map { it -> tuple(it.baseName.replace(".vcf", "").replace(".gvcf", ""), it) }
 
     input = samples.join(gvcfs)
 
     input.take(3).view()
 
-    reference = Channel.fromPath(params.reference, checkIfExists: true).first()
-    catalogue = Channel.fromPath(params.catalogue, checkIfExists: true).first()
-    null_positions = Channel.fromPath(params.null_positions, checkIfExists: true).first()
+    reference = channel.fromPath(params.reference, checkIfExists: true).first()
+    catalogue = channel.fromPath(params.catalogue, checkIfExists: true).first()
+    null_positions = channel.fromPath(params.null_positions, checkIfExists: true).first()
 
     runPrediction(input, params.seq_platform, reference, catalogue, null_positions)
 }
@@ -159,12 +163,10 @@ workflow batch {
 //Run gnomonicus
 process runPrediction {
     publishDir "${params.publish_dir}", enabled: params.publish_dir != "", mode: "copy", saveAs: { filename -> sample_name + "_" + filename }
-    container params.container_prefix + "/oxfordmmm/gnomonicus:v3.0.11-1"
+    container params.container_prefix + "/oxfordmmm/gnomonicus:3.1.5"
     cpus 2
     maxRetries 5
-    memory {
-        params.testing == "" ? 8.GB * (0.8 + (task.attempt / 5)) : "6GB"
-    }
+    memory { params.testing == "" ? 8.GB + (4.GB * (task.attempt - 1)) : "6GB" }
 
     pod label: "name", value: "tb-predict-pipeline:runPrediction"
     pod label: "sample_id", value: "${params.sample_id}"
@@ -180,15 +182,56 @@ process runPrediction {
     output:
     tuple val(sample_name), path("resistance_prediction_report.json"), emit: json
     tuple val(sample_name), path("final.vcf"), emit: vcf
+    tuple val(sample_name), path("variants.parquet"), emit: variants_table, optional: true
+    tuple val(sample_name), path("mutations.parquet"), emit: mutations_table, optional: true
+    tuple val(sample_name), path("effects.parquet"), emit: effects_table, optional: true
+    tuple val(sample_name), path("predictions.parquet"), emit: predictions_table, optional: true
+    
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
     """
-    merge-vcfs --minos_vcf variants.vcf --gvcf all_calls.vcf --resistant-positions ${null_positions} --output "${sample_name}.vcf" --min_dp ${MIN_DP}
-    gnomonicus --genome_object ${reference} --catalogue ${catalogue} --vcf_file "${sample_name}.vcf" --json --output_dir . --resistance_genes --min_dp ${MIN_DP}
+    variants=variants.vcf
+    all_calls=all_calls.vcf
+
+    if gzip -t variants.vcf; then
+        gzip -dc variants.vcf > uncompressed_variants.vcf
+        variants=uncompressed_variants.vcf
+    fi
+
+    if gzip -t all_calls.vcf; then
+        gzip -dc all_calls.vcf > uncompressed_all_calls.vcf
+        all_calls=uncompressed_all_calls.vcf
+    fi
+
+
+    # Merge in GVCF rows at resistance SNPs to ensure we can detect null calls
+    # at these sites (sometimes minos doesn't give us these)
+    merge-vcfs --minos_vcf \${variants} \
+            --gvcf \${all_calls} \
+            --resistant-positions ${null_positions} \
+            --output "${sample_name}.vcf" \
+            --min_dp ${MIN_DP}
+
+    gnomonicus --genome_object ${reference} \
+            --catalogue ${catalogue} \
+            --vcf_file "${sample_name}.vcf" \
+            --json \
+            --output_dir . \
+            --min_dp ${MIN_DP} \
+            --csvs all \
+            --parquet \
+            --json_resistance_genes_only
+
 
     mv "${sample_name}.gnomonicus-out.json" resistance_prediction_report.json
     mv "${sample_name}.vcf" final.vcf
+    mv "${sample_name}.variants.parquet" variants.parquet || true
+    mv "${sample_name}.mutations.parquet" mutations.parquet || true
+    mv "${sample_name}.effects.parquet" effects.parquet || true
+    mv "${sample_name}.predictions.parquet" predictions.parquet || true
+
+    find . -type f -name "uncompressed*.vcf" -delete
     """
 
     stub:

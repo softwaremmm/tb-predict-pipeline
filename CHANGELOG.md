@@ -1,3 +1,7 @@
+## 1.6.2
+
+* Support gzipped input files to process
+
 ## 1.6.1
 * Use image tag `v3.0.11-1` to account for image sync failure.
 
@@ -11,14 +15,14 @@
     * Genes crossing the genome boundary are now supported
     *   Detection of a coding gene without % 3 number of bases no longer causes panic. Instead, such genes are marked as incomplete (via gene name becoming INCOMPLETE_<gene>), and have a warning printed to stderr upon parsing
 
-No effect on TB - these fixes enable NTM genbank files to be used. 
+No effect on TB - these fixes enable NTM genbank files to be used.
 
 ## 1.5.2
 * Output `merged.vcf` (which will become `final.vcf` in a future version)
 
 gnomonicus:
-* Only merge null calls from `alternate.gvcf` (Illumina / Clockwork) or `final.full.vcf` (ONT / Rundial) 
-into `minos.vcf` (Illumina / Clockwork) or `final.vcf` (ONT / Rundial). Merges take place at positions 
+* Only merge null calls from `alternate.gvcf` (Illumina / Clockwork) or `final.full.vcf` (ONT / Rundial)
+into `minos.vcf` (Illumina / Clockwork) or `final.vcf` (ONT / Rundial). Merges take place at positions
 set by the catalogue.
 
 ## 1.5.1
