@@ -1,4 +1,4 @@
-## New
+## 1.6.2
 
 * Support gzipped input files to process
 
