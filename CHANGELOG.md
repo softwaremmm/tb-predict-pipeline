@@ -1,3 +1,8 @@
+## New
+
+* Support different refs
+* Stops supporting gzipped files
+
 ## 1.6.2
 
 * Support gzipped input files to process
