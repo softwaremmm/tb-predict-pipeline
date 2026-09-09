@@ -103,7 +103,7 @@ process runPrediction {
 
     script:
     MIN_DP = seq_platform == 'illumina' ? 3 : 5
-    CATALOGUE_CMD = catalogue == "EMPTY_catalogue.csv" ? "" : "--catalogue " + catalogue
+    CATALOGUE_CMD = catalogue.name == "EMPTY_catalogue.csv" ? "" : "--catalogue " + catalogue
     // Only merge VCFs if a catalogue is provided, otherwise just copy the variants.vcf to the output
     MERGE_VCFS_CMD = (CATALOGUE_CMD == ""
         ? "cp variants.vcf ${sample_name}.vcf"
