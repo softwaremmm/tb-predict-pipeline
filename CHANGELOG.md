@@ -1,7 +1,8 @@
 ## New
 
 * Support different refs
-* Stops supporting gzipped files
+* Stops supporting gzipped files (too much complexity at this point)
+* Simplified local running to no longer have "batch" workflow
 
 ## 1.6.2
 
