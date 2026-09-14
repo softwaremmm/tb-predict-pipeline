@@ -152,3 +152,4 @@ tests/outputs/*
 *.gvcf
 # But not the empty one
 !empty.gvcf
+!tests/batch_dir/*
