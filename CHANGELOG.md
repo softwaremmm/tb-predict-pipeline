@@ -1,3 +1,10 @@
+## 2.0.0
+
+* Support different refs (ref files are now included in sample channel)
+* Stops supporting gzipped files (too much complexity at this point)
+* Simplified local running to no longer have "batch" workflow
+* Use gnomonicus 3.1.6 (Ensures tables are built even with no catalogue)
+
 ## 1.6.2
 
 * Support gzipped input files to process
