@@ -1,8 +1,9 @@
-## New
+## 2.0.0
 
 * Support different refs
 * Stops supporting gzipped files (too much complexity at this point)
 * Simplified local running to no longer have "batch" workflow
+* Use gnomonicus 3.1.6
 
 ## 1.6.2
 
